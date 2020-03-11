@@ -27,7 +27,7 @@ mp = multiprocessing.get_context('spawn')
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='[%(asctime)s %(processName)s] %(message)s'
+    format='[%(asctime)s %(processName)s]\t %(message)s'
     )
 
 
@@ -110,7 +110,7 @@ def AsyncSelfPlay(nnet, game, args, iter_num):  # , bar
 
 def AsyncMinimaxPlay(game, args,gameth):
     
-    logging.debug("play minimax game " + int(gameth))
+    logging.debug("play minimax game " + str(gameth))
     minimax = minimaxAI(game)
     trainExamples = []
     board = game.getInitBoard()
@@ -197,7 +197,7 @@ def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
 
 def AsyncAgainst(nnet, game, args, gameth):
     
-    logging.debug("play self test game " + int(gameth))
+    logging.debug("play self test game " + str(gameth))
 
     # set gpu
     if(args.multiGPU):
@@ -239,19 +239,6 @@ def AsyncAgainst(nnet, game, args, gameth):
     return net_win, minimax_win, draws
 
 
-# def CheckResultAndSaveNetwork(pwins, nwins, draws, nnet, game, args, iter_num):
-
-#     if pwins+nwins > 0 and float(nwins+(0.5*draws))/(pwins+nwins+draws) < args.updateThreshold:
-#         print('REJECTING NEW MODEL')
-#     else:
-#         print('ACCEPTING NEW MODEL')
-#         nnet.load_checkpoint(folder=args.checkpoint,
-#                              filename='train_iter_'+str(iter_num)+'.pth.tar')
-#         nnet.save_checkpoint(folder=args.checkpoint, filename='best.pth.tar')
-#         nnet.save_checkpoint(folder=args.checkpoint,
-#                              filename='checkpoint_' + str(iter_num) + '.pth.tar')
-
-
 class Coach():
     """
     This class executes the self-play + learning. It uses the functions defined
@@ -261,10 +248,8 @@ class Coach():
     def __init__(self, game, args):
         self.game = game
         self.args = args
-        #self.nnet = nn(game, gpu_num=0)
         self.nnet1 = nn(self.game, gpu_num=self.args.setGPU)
-        #self.nnet2 = nn(self.game, gpu_num=2)
-        #self.nnet3 = nn(self.game, gpu_num=3)
+
 
         self.trainExamplesHistory = []
         self.checkpoint_iter = 0
@@ -394,7 +379,7 @@ class Coach():
             nwins += i[1]
             draws += i[2]
 
-        out = "iter"+iter_num+"\tNN win: "+str(pwins)+"\tMinimax win: " + str(nwins)+"\tDraws: "+str(draws)
+        out = "iter "+str(iter_num)+"\tNN win: "+str(pwins)+"\tMinimax win: " + str(nwins)+"\tDraws: "+str(draws)
         print(out)
         f = open('/root/test/CU_Makhos/results.txt','a')
         f.write(out+"\n")
@@ -534,7 +519,7 @@ class Coach():
         # if self.args.load_model:
         #     start_iter += self.args.load_iter
 
-        for i in range(1, 30):  # hard code for 30 iters
+        for i in range(2, 30):  # hard code for 30 iters
             print('------ITER ' + str(i) + '------')
             self.win_count = 0
             self.loss_count = 0

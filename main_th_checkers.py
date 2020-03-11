@@ -21,13 +21,13 @@ args = dotdict({
     'cpuct': 2,
 
     'multiGPU': False,
-    'setGPU': '1',
+    'setGPU': '0',
     'numSelfPlayPool': 32,
     'numTestPlayPool': 12,
 
     'checkpoint': '/root/test/CU_Makhos/models_minimax/',
     'load_model': True,
-    'load_iter': 0,
+    'load_iter': 1,
     'load_folder_file': '/root/test/CU_Makhos/models_minimax/',
     'numItersForTrainExamplesHistory': 4  # 4
 
@@ -38,6 +38,8 @@ if __name__ == "__main__":
     os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
     g = Game()
     c = Coach(g, args)
-    c.learn_minimax()
+    c.nnet1.load_checkpoint(folder=args.checkpoint, filename='train_iter_'+str(args.load_iter)+'.pth.tar')
+    c.parallel_self_test_play(1)
+    #c.learn_minimax()
     # c.args.load_iter = 30
     # c.learn()
