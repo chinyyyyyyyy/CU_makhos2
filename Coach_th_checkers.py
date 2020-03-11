@@ -20,9 +20,15 @@ import copy
 from utils_examples_global_avg import build_unique_examples
 from utils import *
 import shutil
+import logging
 
 
 mp = multiprocessing.get_context('spawn')
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='[%(asctime)s %(processName)s] %(message)s'
+    )
 
 
 def AsyncSelfPlay(nnet, game, args, iter_num):  # , bar
@@ -44,18 +50,9 @@ def AsyncSelfPlay(nnet, game, args, iter_num):  # , bar
     else:
         os.environ["CUDA_VISIBLE_DEVICES"] = args.setGPU
 
-    # create nn and load
 
-    # net = nn(game, (iter_num % 2) + 1)
-    # net.nnet.load_state_dict(nnet.nnet.state_dict())
 
     mcts = MCTS(game, nnet, args)
-    # try:
-    #     net.load_checkpoint(folder=args.checkpoint, filename='best.pth.tar')
-    # except:
-    #     pass
-    # boardHistory = deque(np.zeros((8, 8, 8), dtype='int'), maxlen=8)
-    # histIdx = 0
     trainExamples = []
     board = game.getInitBoard()
     curPlayer = 1
@@ -111,11 +108,10 @@ def AsyncSelfPlay(nnet, game, args, iter_num):  # , bar
             return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r
 
 
-def AsyncMinimaxPlay(game, args):
-
+def AsyncMinimaxPlay(game, args,gameth):
+    
+    logging.debug("play minimax game " + int(gameth))
     minimax = minimaxAI(game)
-
-    #boardHistory = deque(np.zeros((8, 8, 8), dtype='int'), maxlen=8)
     trainExamples = []
     board = game.getInitBoard()
     curPlayer = 1
@@ -200,6 +196,8 @@ def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
 
 
 def AsyncAgainst(nnet, game, args, iter_num):
+    
+    logging.debug("play self test game " + int(gameth))
 
     # set gpu
     if(args.multiGPU):
@@ -340,16 +338,13 @@ class Coach():
         temp_draw_games = []
         temp_win_games = []
         temp_loss_games = []
-        # bar = Bar('Self Play', max=self.args.numEps)
-        # bar = tqdm(total=self.args.numEps)
         for i in range(self.args.numEps):
 
             res.append(pool.apply_async(AsyncMinimaxPlay, args=(
-                self.game, self.args)))
+                self.game, self.args,i)))
 
         pool.close()
         pool.join()
-        # print("Done self-play")
 
         for i in res:
             gameplay, r = i.get()
@@ -377,19 +372,13 @@ class Coach():
         return temp
 
     def parallel_self_test_play(self, iter_num):
+        print("start self play ",iter_num)
         pool = mp.Pool(processes=self.args.numTestPlayPool, maxtasksperchild=1)
 
         res = []
         result = []
+        net = self.nnet1
         for i in range(self.args.arenaCompare):
-            net = self.nnet1
-	          #if i % 2 == 0:
-            #    net = self.nnet1
-            #else :
-            #    net = self.nnet2
-            #else:
-            #    net = self.nnet3
-
             res.append(pool.apply_async(
                 AsyncAgainst, args=(net, self.game, self.args, i)))
         pool.close()
@@ -405,23 +394,18 @@ class Coach():
             nwins += i[1]
             draws += i[2]
 
-        print("NN win: "+str(pwins)+"\tMinimax win: " +
-              str(nwins)+"\tDraws: "+str(draws))
-        # pool = mp.Pool(processes=1)
-
-        # pool.apply_async(CheckResultAndSaveNetwork, args=(
-        #     pwins, nwins, draws, self.game, self.args, iter_num,))
-        # pool.close()
-        # pool.join()
-
-        # CheckResultAndSaveNetwork(
-        #     pwins, nwins, draws, self.nnet, self.game, self.args, iter_num)
+        out = "iter"+iter_num+"\tNN win: "+str(pwins)+"\tMinimax win: " + str(nwins)+"\tDraws: "+str(draws)
+        print(out)
+        f = open('/root/test/CU_Makhos/results.txt','a')
+        f.write(out+"\n")
+        f.close()
+ 
 
     def train_network(self, iter_num, train_net=True):
 
-        # print("Start train network")
+        print("Start train network")
 
-        torch.cuda.set_device('cuda:3')
+        torch.cuda.set_device('cuda:' + self.args.setGPU)
 
         TrainNetwork(self.nnet1, self.game, self.args,
                      iter_num, self.trainExamplesHistory, train_net)
@@ -562,7 +546,7 @@ class Coach():
 
             iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
 
-            temp = self.parallel_minimax_play()
+            self.parallel_minimax_play()
 
             # iterationTrainExamples += temp
             iterationTrainExamples += self.win_games
@@ -576,9 +560,6 @@ class Coach():
 
             self.trainExamplesHistory.append(iterationTrainExamples)
             self.train_network(i)
-            # self.nnet1.nnet.load_state_dict(self.nnet.nnet.state_dict())
-            # self.nnet2.nnet.load_state_dict(self.nnet1.nnet.state_dict())
-            # self.nnet3.nnet.load_state_dict(self.nnet1.nnet.state_dict())
             self.parallel_self_test_play(i)
             self.trainExamplesHistory.clear()
 

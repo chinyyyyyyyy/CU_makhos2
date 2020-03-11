@@ -21,22 +21,21 @@ args = dotdict({
     'cpuct': 2,
 
     'multiGPU': False,
-    'setGPU': '3',
-    'numSelfPlayPool': 24,
-    'numTestPlayPool': 24,
+    'setGPU': '1',
+    'numSelfPlayPool': 32,
+    'numTestPlayPool': 12,
 
-    'checkpoint': '/workspace/CU_Makhos/models_minimax/',
+    'checkpoint': '/root/test/CU_Makhos/models_minimax/',
     'load_model': True,
-    'load_iter': 268,
-    'load_folder_file': '/workspace/CU_Makhos/models_minimax/',
+    'load_iter': 0,
+    'load_folder_file': '/root/test/CU_Makhos/models_minimax/',
     'numItersForTrainExamplesHistory': 4  # 4
 
 })
 
 if __name__ == "__main__":
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
-    #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
     g = Game()
     c = Coach(g, args)
     c.learn_minimax()
