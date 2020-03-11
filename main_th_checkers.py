@@ -39,5 +39,5 @@ if __name__ == "__main__":
     g = Game()
     c = Coach(g, args)
     c.learn_minimax()
-    c.args.load_iter = 30
-    c.learn()
+    # c.args.load_iter = 30
+    # c.learn()

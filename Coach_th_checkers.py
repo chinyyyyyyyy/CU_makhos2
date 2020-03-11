@@ -195,7 +195,7 @@ def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
                             filename='train_iter_' + str(iter_num) + '.pth.tar')
 
 
-def AsyncAgainst(nnet, game, args, iter_num):
+def AsyncAgainst(nnet, game, args, gameth):
     
     logging.debug("play self test game " + int(gameth))
 
@@ -262,7 +262,7 @@ class Coach():
         self.game = game
         self.args = args
         #self.nnet = nn(game, gpu_num=0)
-        self.nnet1 = nn(self.game, gpu_num=3)
+        self.nnet1 = nn(self.game, gpu_num=self.args.setGPU)
         #self.nnet2 = nn(self.game, gpu_num=2)
         #self.nnet3 = nn(self.game, gpu_num=3)
 
