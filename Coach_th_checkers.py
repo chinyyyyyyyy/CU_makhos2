@@ -31,24 +31,9 @@ logging.basicConfig(
     )
 
 
-def AsyncSelfPlay(nnet, game, args, iter_num):  # , bar
+def AsyncSelfPlay(nnet, game, args, iter_num): 
 
-    # bar.suffix = "iter:{i}/{x} | Total: {total:} | ETA: {eta:}".format(
-    #     i=iter_num+1, x=iterr, total=bar.elapsed_td, eta=bar.eta_td)
-
-    # set gpu
-    if(args.multiGPU):
-        if(iter_num % 2 == 0):
-            #os.environ["CUDA_VISIBLE_DEVICES"] = '1'
-            torch.cuda.device('cuda:3')
-        else :
-            #os.environ["CUDA_VISIBLE_DEVICES"] = '2'
-            torch.cuda.device('cuda:2')
-        #else:
-            #os.environ["CUDA_VISIBLE_DEVICES"] = '3'
-            #torch.cuda.device('cuda:3')
-    else:
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.setGPU
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.setGPU
 
 
 
@@ -61,23 +46,8 @@ def AsyncSelfPlay(nnet, game, args, iter_num):  # , bar
     while True:
         episodeStep += 1
         canonicalBoard = game.getCanonicalForm(board, curPlayer)
-        # boardHistory.append(canonicalBoard)
-        # temp = int(episodeStep < args.tempThreshold)
-        # print('canonical Board')
-        # print(canonicalBoard)
         pi = mcts.getActionProb(canonicalBoard, temp=1)
         valids = game.getValidMoves(canonicalBoard, 1)
-        # bs, ps = zip(*game.getSymmetries(canonicalBoard, pi))
-        # _, valids_sym = zip(
-        #     *game.getSymmetries(canonicalBoard, valids))
-        # sym = zip(bs, ps, valids_sym)
-        # for b, p, valid in data:
-        #     trainExamples.append([b, curPlayer, p, game.gameState.turn, game.gameState.stale, valid])
-        # data = zip(canonicalBoard, pi, valids)
-        # boardHistory[histIdx] = [canonicalBoard, curPlayer, pi,
-        #                         game.gameState.turn, game.gameState.stale, valids]
-        # if histIdx<7:
-        #     histIdx+=1
 
         trainExamples.append([canonicalBoard, curPlayer, pi,
                               game.gameState.turn, game.gameState.stale, valids])
@@ -86,25 +56,10 @@ def AsyncSelfPlay(nnet, game, args, iter_num):  # , bar
         board, curPlayer = game.getNextState(
             board, curPlayer, action)
 
-        # print()
-        # print('next_board')
-        # print(board)
-        # print()
+ 
         r = game.getGameEnded(board, curPlayer)  # winner
 
         if r != 0:
-            # print([(x[0], x[2], r*((-1)**(x[1] != curPlayer)))
-            #        for x in trainExamples])
-            # print([(x[0], r*x[1])
-            #        for x in trainExamples])
-            # bar.update(1)
-            # global draw_count
-            # global win_loss_count
-            # if r == 1e-4:
-            #     draw_count += 1
-            # else:
-            #     win_loss_count += 1
-            # del mcts
             return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r
 
 
