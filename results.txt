@@ -27,3 +27,4 @@ iter 26	NN win: 45	Minimax win: 23	Draws: 32
 iter 27	NN win: 44	Minimax win: 27	Draws: 29
 iter 28	NN win: 66	Minimax win: 18	Draws: 16
 iter 29	NN win: 72	Minimax win: 15	Draws: 13
+============= Start Self-playing ================

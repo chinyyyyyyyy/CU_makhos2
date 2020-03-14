@@ -27,7 +27,7 @@ args = dotdict({
 
     'checkpoint': '/root/test/CU_Makhos/models_minimax/',
     'load_model': True,
-    'load_iter': 1,
+    'load_iter': 30,
     'load_folder_file': '/root/test/CU_Makhos/models_minimax/',
     'numItersForTrainExamplesHistory': 4  # 4
 
@@ -40,6 +40,6 @@ if __name__ == "__main__":
     c = Coach(g, args)
     # c.nnet1.load_checkpoint(folder=args.checkpoint, filename='train_iter_'+str(args.load_iter)+'.pth.tar')
     # c.parallel_self_test_play(1)
-    c.learn_minimax()
+    # c.learn_minimax()
     # c.args.load_iter = 30
-    # c.learn()
+    c.learn()

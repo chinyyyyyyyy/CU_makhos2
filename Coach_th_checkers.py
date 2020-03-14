@@ -1,26 +1,26 @@
 from collections import deque
-from Arena import Arena
-from MCTS_th_checkers import MCTS
-import numpy as np
-from pytorch_classification.utils import Bar, AverageMeter
-from ThaiCheckers.ThaiCheckersGame import ThaiCheckersGame as Game
-from ThaiCheckers.pytorch.NNet import NNetWrapper as nn
-from ThaiCheckers.ThaiCheckersPlayers import minimaxAI
-import time
 import os
-import sys
-from pickle import Pickler, Unpickler
+import logging
+import random
+import shuffle
+import time
+
+import numpy as np
+import pandas as pd
 import pickle
-from random import shuffle
 from torch import multiprocessing
 import torch
-from tqdm import tqdm
-import random
-import copy
+import psutil
+
+
+from Arena import Arena
+from MCTS_th_checkers import MCTS
+from ThaiCheckers.pytorch.NNet import NNetWrapper as nn
+from ThaiCheckers.ThaiCheckersPlayers import minimaxAI
 from utils_examples_global_avg import build_unique_examples
-from utils import *
+from utils import dotdict
 import shutil
-import logging
+
 
 
 mp = multiprocessing.get_context('spawn')
@@ -32,9 +32,11 @@ logging.basicConfig(
 
 
 def AsyncSelfPlay(nnet, game, args, iter_num): 
+    
+    logging.debug("play minimax game " + str(iter_num))
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.setGPU
-
+    start_game_time = time.time() 
 
 
     mcts = MCTS(game, nnet, args)
@@ -42,8 +44,10 @@ def AsyncSelfPlay(nnet, game, args, iter_num):
     board = game.getInitBoard()
     curPlayer = 1
     episodeStep = 0
+    moves_records = []
 
     while True:
+        start_move = time.time()
         episodeStep += 1
         canonicalBoard = game.getCanonicalForm(board, curPlayer)
         pi = mcts.getActionProb(canonicalBoard, temp=1)
@@ -58,9 +62,15 @@ def AsyncSelfPlay(nnet, game, args, iter_num):
 
  
         r = game.getGameEnded(board, curPlayer)  # winner
+        moves_records.append(time.time() - start_move)
+        
 
         if r != 0:
-            return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r
+            end_game_time  = time.time()
+            game_duration = end_game_time - start_game_time
+            p = psutil.Process()
+            report = [iter_num, start_game_time, end_game_time, game_duration,p.cpu_num(), p.memory_info[1]/(1024*1024), moves_records]
+            return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r, report 
 
 
 def AsyncMinimaxPlay(game, args,gameth):
@@ -95,17 +105,6 @@ def AsyncMinimaxPlay(game, args,gameth):
 
 
 def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
-    # set gpu
-    # os.environ["CUDA_VISIBLE_DEVICES"] = args.setGPU
-    # create network for training
-    # nnet = nn(game)
-    # try:
-    #     nnet.load_checkpoint(folder=args.checkpoint, filename='best.pth.tar')
-    # except:
-    #     pass
-
-    
-
     # ---load history file---
     
     modelFile = os.path.join(args.checkpoint, "trainhistory.pth.tar")
@@ -154,33 +153,11 @@ def AsyncAgainst(nnet, game, args, gameth):
     
     logging.debug("play self test game " + str(gameth))
 
-    # set gpu
-    if(args.multiGPU):
-        if(iter_num % 2 == 0):
-            #os.environ["CUDA_VISIBLE_DEVICES"] = '1'
-            torch.cuda.device('cuda:3')
-        else:
-            #os.environ["CUDA_VISIBLE_DEVICES"] = '2'
-            torch.cuda.device('cuda:2')
-        #else:
-            #os.environ["CUDA_VISIBLE_DEVICES"] = '3'
-            #torch.cuda.device('cuda:3')
-    else:
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.setGPU
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.setGPU
 
     # create nn and load
     minimax = minimaxAI(game)
-    # try:
-    #     nnet.load_checkpoint(folder=args.checkpoint,
-    #                          filename='train_iter_'+str(iter_num)+'.pth.tar')
-    # except:
-    #     print("load train model fail")
-    #     pass
-    # try:
-    #     pnet.load_checkpoint(folder=args.checkpoint, filename='best.pth.tar')
-    # except:
-    #     print("load old model fail")
-    #     pass
 
     local_args = dotdict({'numMCTSSims': 100, 'cpuct': 1.0})
     # local_args.numMCTSSims = 100
@@ -226,27 +203,23 @@ class Coach():
         temp_draw_games = []
         temp_win_games = []
         temp_loss_games = []
-        # bar = Bar('Self Play', max=self.args.numEps)
-        # bar = tqdm(total=self.args.numEps)
+        
+        reports = []
+
+
+
         for i in range(self.args.numEps):
             net = self.nnet1
-            #if i % 2 == 0:
-            #    net = self.nnet1
-            #else:
-            #    net = self.nnet2
-            #else:
-            #    net = self.nnet3
-
             res.append(pool.apply_async(AsyncSelfPlay, args=(
                 net, self.game, self.args, i)))
 
         pool.close()
         pool.join()
-        # print("Done self-play")
 
         for i in res:
-            gameplay, r = i.get()
+            gameplay, r ,report = i.get()
             result.append(gameplay)
+            reports.append(report)
             if (r == 1e-4):
                 self.draw_count += 1
                 temp_draw_games.append(gameplay)
@@ -267,7 +240,8 @@ class Coach():
 
         for i in temp_loss_games:
             self.loss_games += i
-        return temp
+        
+        return reports
 
     def parallel_minimax_play(self):
         pool = mp.Pool(processes=self.args.numSelfPlayPool)
@@ -363,9 +337,8 @@ class Coach():
             try:
                 self.nnet1.load_checkpoint(
                     folder=self.args.checkpoint, filename='train_iter_'+str(self.args.load_iter)+'.pth.tar')
-                # self.nnet1.load_state_dict(self.nnet.state_dict())
-                # self.nnet2.load_state_dict(self.nnet.state_dict())
-
+            
+        
             except Exception as e:
                 print(e)
                 print("Create a new model")
@@ -379,10 +352,7 @@ class Coach():
         for param_group in self.nnet1.optimizer.param_groups:
             print(param_group['lr'])
 
-        #state_dict = self.nnet1.nnet.state_dict()
-        # self.nnet1.nnet.load_state_dict(state_dict)
-        #self.nnet2.nnet.load_state_dict(state_dict)
-        # self.nnet3.nnet.load_state_dict(state_dict)
+
 
         start_iter = 1
         if self.args.load_model:
@@ -396,9 +366,13 @@ class Coach():
                 self.args.numMCTSSims += 1
             if ((i > 5) and (i % 2 == 0) and (self.args.numItersForTrainExamplesHistory < 20)):
                 self.args.numItersForTrainExamplesHistory += 1
-            print('------ITER ' + str(i) + '------' +
-                  '\tMCTS sim:' + str(self.args.numMCTSSims) + '\tIter samples :' + str(self.args.numItersForTrainExamplesHistory))
-
+            
+            learning_config = '------ITER ' + str(i) + '------' + '\tMCTS sim:' + str(self.args.numMCTSSims) + '\tIter samples :' + str(self.args.numItersForTrainExamplesHistory)
+            print(learning_config)
+            f = open('/root/test/CU_Makhos/learning_config.txt','a')
+            f.write(learning_config + "\n")
+            f.close()
+            
             self.win_count = 0
             self.loss_count = 0
             self.draw_count = 0
@@ -409,7 +383,11 @@ class Coach():
 
             iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
 
-            self.parallel_self_play()
+            reports = self.parallel_self_play()
+            report_df = pd.DataFrame(reports)
+            report_df.to_csv('/root/test/CU_Makhos/time_reports/iter' + str(i))
+            
+            
 
             # iterationTrainExamples += temp
             iterationTrainExamples += self.win_games
@@ -420,9 +398,7 @@ class Coach():
 
             self.checkpoint_iter = i
 
-            # games = []
-            # games += self.win_games
-            # games += self.loss_games
+    
 
             if self.draw_count <= (self.win_count + self.loss_count):
                 iterationTrainExamples += self.draw_games
@@ -439,18 +415,11 @@ class Coach():
 
             self.trainExamplesHistory.append(iterationTrainExamples)
             self.train_network(i)
-            # self.nnet1.nnet.load_state_dict(self.nnet.nnet.state_dict())
-            #self.nnet2.nnet.load_state_dict(self.nnet1.nnet.state_dict())
-            #self.nnet3.nnet.load_state_dict(self.nnet1.nnet.state_dict())
             self.trainExamplesHistory.clear()
 
             if i % 10 == 0:
                 self.parallel_self_test_play(i)
 
-            # self.trainExamplesHistory.append(iterationTrainExamples)
-            # self.train_network(i)
-            # self.trainExamplesHistory.clear()
-            # self.parallel_self_test_play(i)
 
     def learn_minimax(self):
 
