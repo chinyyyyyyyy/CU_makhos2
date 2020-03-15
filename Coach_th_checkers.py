@@ -2,7 +2,7 @@ from collections import deque
 import os
 import logging
 import random
-import shuffle
+from random import shuffle
 import time
 
 import numpy as np
@@ -33,7 +33,7 @@ logging.basicConfig(
 
 def AsyncSelfPlay(nnet, game, args, iter_num): 
     
-    logging.debug("play minimax game " + str(iter_num))
+    logging.debug("self playing game" + str(iter_num))
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.setGPU
     start_game_time = time.time() 
@@ -69,7 +69,7 @@ def AsyncSelfPlay(nnet, game, args, iter_num):
             end_game_time  = time.time()
             game_duration = end_game_time - start_game_time
             p = psutil.Process()
-            report = [iter_num, start_game_time, end_game_time, game_duration,p.cpu_num(), p.memory_info[1]/(1024*1024), moves_records]
+            report = [iter_num, start_game_time, end_game_time, game_duration, p.cpu_num(), p.memory_info()[1]/(1024*1024), moves_records]
             return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r, report 
 
 
