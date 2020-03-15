@@ -15,8 +15,10 @@ class MCTS():
         self.nnet = nnet
         self.args = args
         self.verbose = verbose
-        self.states_visited = 0
         self.eval = eval    # eval mode
+        
+        
+        self.states_visited = 0
         self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
         self.Nsa = {}       # stores #times edge s,a was visited
         self.Ns = {}        # stores #times board s was visited
@@ -85,9 +87,6 @@ class MCTS():
         Returns:
             v: the negative of the value of the current canonicalBoard
         """
-        # print('canonicalBoard')
-        # print(canonicalBoard)
-        # print()
         self.states_visited += 1
         s = self.game.stringRepresentation(boardHistory)
         canonicalBoard = boardHistory
@@ -95,16 +94,6 @@ class MCTS():
             self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
 
         if self.Es[s] != 0:
-            # # terminal node
-            # print('terminal')
-            # print('terminal')
-            # print('terminal')
-            # print('terminal')
-            # print('terminal')
-            # print('terminal')
-            # print('terminal')
-            # print('terminal')
-            # print('terminal')
             return -self.Es[s]
 
         if s not in self.Ps:
