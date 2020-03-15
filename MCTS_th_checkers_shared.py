@@ -2,10 +2,15 @@ import math
 import numpy as np
 import random
 from collections import deque
+import multiprocessing
+
+
+
+manager = multiprocessing.Manager()
 EPS = 1e-8
 
 
-class MCTS():
+class MCTS_shared():
     """
     This class handles the MCTS tree.
     """
@@ -18,13 +23,16 @@ class MCTS():
         self.eval = eval    # eval mode
         
         
-        self.states_visited = 0
-        self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
-        self.Nsa = {}       # stores #times edge s,a was visited
-        self.Ns = {}        # stores #times board s was visited
-        self.Ps = {}        # stores initial policy (returned by neural net)
-        self.Es = {}        # stores game.getGameEnded ended for board s
-        self.Vs = {}        # stores game.getValidMoves for board s
+        ns = manager.Namespace() 
+        ns.x = 0
+        
+        self.states_visited = ns.x
+        self.Qsa = manager.dict()       # stores Q values for s,a (as defined in the paper)
+        self.Nsa = manager.dict()          # stores #times edge s,a was visited
+        self.Ns = manager.dict()           # stores #times board s was visited
+        self.Ps = manager.dict()           # stores initial policy (returned by neural net)
+        self.Es = manager.dict()           # stores game.getGameEnded ended for board s
+        self.Vs = manager.dict()           # stores game.getValidMoves for board s
 
     def getActionProb(self, boardHistory, temp=1):
         """
@@ -99,8 +107,11 @@ class MCTS():
         if s not in self.Ps:
             # leaf node
             valids = self.game.getValidMoves(canonicalBoard, 1)
-            self.Ps[s], v = self.nnet.predict(
+            tmp_eiei, v = self.nnet.predict(
                 boardHistory, self.game.gameState.turn, self.game.gameState.stale, valids)
+            
+            v = v[0]
+            self.Ps[s] = manager.list(tmp_eiei)
             
 
             # valids = self.game.getValidMoves(canonicalBoard, 1)
@@ -116,19 +127,20 @@ class MCTS():
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.
                 print("All valid moves were masked, do workaround.")
-                self.Ps[s] = self.Ps[s] + valids
-                self.Ps[s] /= np.sum(self.Ps[s])
+                tmp_eiei2 = np.array(self.Ps[s]) + valids
+                tmp_eiei2 /= np.sum(self.Ps[s])
+                self.Ps[s] = manager.list(tmp_eiei2)
 
-            self.Vs[s] = valids
+            self.Vs[s] = manager.list(valids)
             self.Ns[s] = 0
             # print('return not in ps')
             return -v
 
         if is_search_root and not self.eval:
             dir_noise = np.random.dirichlet([1]*32*32)
-            self.Ps[s] = 0.75*self.Ps[s] + 0.25*dir_noise
+            self.Ps[s] = manager.list(0.75*np.array(self.Ps[s]) + 0.25*dir_noise)
 
-        valids = self.Vs[s]
+        valids = np.array(self.Vs[s])
         cur_best = -float('inf')
         best_act = []
 
@@ -176,9 +188,9 @@ class MCTS():
         return -v
 
     def reset_tree(self):
-        self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
-        self.Nsa = {}       # stores #times edge s,a was visited
-        self.Ns = {}        # stores #times board s was visited
-        self.Ps = {}        # stores initial policy (returned by neural net)
-        self.Es = {}        # stores game.getGameEnded ended for board s
-        self.Vs = {}        # stores game.getValidMoves for board s
+        self.Qsa = manager.dict()       # stores Q values for s,a (as defined in the paper)
+        self.Nsa = manager.dict()          # stores #times edge s,a was visited
+        self.Ns = manager.dict()           # stores #times board s was visited
+        self.Ps = manager.dict()           # stores initial policy (returned by neural net)
+        self.Es = manager.dict()           # stores game.getGameEnded ended for board s
+        self.Vs = manager.dict()           # stores game.getValidMoves for board s

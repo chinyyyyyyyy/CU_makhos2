@@ -12,9 +12,9 @@ from torch import multiprocessing
 import torch
 import psutil
 
-
-from Arena import Arena
 from MCTS_th_checkers import MCTS
+from MCTS_th_checkers_shared import MCTS_shared
+from Arena import Arena
 from ThaiCheckers.pytorch.NNet import NNetWrapper as nn
 from ThaiCheckers.ThaiCheckersPlayers import minimaxAI
 from utils_examples_global_avg import build_unique_examples
@@ -31,15 +31,14 @@ logging.basicConfig(
     )
 
 
-def AsyncSelfPlay(nnet, game, args, iter_num): 
+def AsyncSelfPlay(mcts,nnet, game, args, iter_num): 
     
     logging.debug("self playing game" + str(iter_num))
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.setGPU
     start_game_time = time.time() 
 
-
-    mcts = MCTS(game, nnet, args)
+    
     trainExamples = []
     board = game.getInitBoard()
     curPlayer = 1
@@ -68,6 +67,7 @@ def AsyncSelfPlay(nnet, game, args, iter_num):
         
 
         if r != 0:
+            logging.debug('number of visited in tree' + str(mcts.states_visited))
             end_game_time  = time.time()
             game_duration = end_game_time - start_game_time
             p = psutil.Process()
@@ -207,13 +207,17 @@ class Coach():
         temp_loss_games = []
         
         reports = []
-
+        
+        net = self.nnet1
+        if self.args.shared_tree == True:
+            mcts = MCTS_shared(self.game, net, self.args)
+        else:
+            mcts = MCTS(self.game, net, self.args)
 
 
         for i in range(self.args.numEps):
-            net = self.nnet1
             res.append(pool.apply_async(AsyncSelfPlay, args=(
-                net, self.game, self.args, i)))
+                mcts,net, self.game, self.args, i)))
 
         pool.close()
         pool.join()

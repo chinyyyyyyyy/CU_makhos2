@@ -29,7 +29,9 @@ args = dotdict({
     'load_model': True,
     'load_iter': 30,
     'load_folder_file': '/root/test/CU_Makhos/models_minimax/',
-    'numItersForTrainExamplesHistory': 4  # 4
+    'numItersForTrainExamplesHistory': 4 , # 4
+    
+    'shared_tree' : True
 
 })
 
