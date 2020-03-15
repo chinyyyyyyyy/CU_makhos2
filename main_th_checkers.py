@@ -12,7 +12,7 @@ Before using multiprocessing, please check 2 things before use this script.
 
 args = dotdict({
     'numIters': 500,
-    'numEps': 20,  # 25000
+    'numEps': 500,  # 25000
     'tempThreshold': 15,  # not used
     'updateThreshold': 0.55,  # not used
     'maxlenOfQueue': 200000,
@@ -27,7 +27,7 @@ args = dotdict({
 
     'checkpoint': '/root/test/CU_Makhos/models_minimax/',
     'load_model': True,
-    'load_iter': 29,
+    'load_iter': 30,
     'load_folder_file': '/root/test/CU_Makhos/models_minimax/',
     'numItersForTrainExamplesHistory': 4  # 4
 
