@@ -51,6 +51,8 @@ def AsyncSelfPlay(nnet, game, args, iter_num):
         episodeStep += 1
         canonicalBoard = game.getCanonicalForm(board, curPlayer)
         pi = mcts.getActionProb(canonicalBoard, temp=1)
+    
+        
         valids = game.getValidMoves(canonicalBoard, 1)
 
         trainExamples.append([canonicalBoard, curPlayer, pi,

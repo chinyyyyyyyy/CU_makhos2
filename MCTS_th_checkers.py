@@ -172,7 +172,6 @@ class MCTS():
             self.Nsa[(s, a)] = 1
 
         self.Ns[s] += 1
-        # print('return end')
         return -v
 
     def reset_tree(self):
