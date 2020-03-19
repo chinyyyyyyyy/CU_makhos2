@@ -1,6 +1,6 @@
 import numpy as np
 from copy import deepcopy
-from preprocessing import move_to_index
+from .preprocessing import move_to_index
 
 print("this is new one")
 

@@ -1,7 +1,7 @@
 import numpy as np
-from ThaiCheckersLogic import Board
+from .ThaiCheckersLogic import Board
 from Game import Game
-from preprocessing import index_to_move
+from .preprocessing import index_to_move
 import sys
 sys.path.append('..')
 

@@ -1,6 +1,6 @@
 import numpy as np
 import copy
-from ThaiCheckersLogic import Board
+from .ThaiCheckersLogic import Board
 from random import choice
 
 
