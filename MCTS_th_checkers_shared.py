@@ -26,7 +26,7 @@ class MCTS_shared():
         ns = manager.Namespace() 
         ns.x = 0
         
-        self.states_visited = ns.x
+        self.states_visited = ns
         self.Qsa = manager.dict()       # stores Q values for s,a (as defined in the paper)
         self.Nsa = manager.dict()          # stores #times edge s,a was visited
         self.Ns = manager.dict()           # stores #times board s was visited
@@ -65,7 +65,7 @@ class MCTS_shared():
             probs[bestA] = 1
             if self.verbose:
                 try:
-                    print('MCTS States visited:',self.states_visited)
+                    print('MCTS States visited:',self.states_visited.x)
                     print('Win confidence for current board:' +  str( round( (0.5 + self.Qsa[(s,bestA)][0]/2)*100,2) ) + '%')
                 except:
                     pass
@@ -95,7 +95,7 @@ class MCTS_shared():
         Returns:
             v: the negative of the value of the current canonicalBoard
         """
-        self.states_visited += 1
+        self.states_visited.x += 1
         s = self.game.stringRepresentation(boardHistory)
         canonicalBoard = boardHistory
         if s not in self.Es:
@@ -139,8 +139,9 @@ class MCTS_shared():
         if is_search_root and not self.eval:
             dir_noise = np.random.dirichlet([1]*32*32)
             self.Ps[s] = manager.list(0.75*np.array(self.Ps[s]) + 0.25*dir_noise)
-
-        valids = np.array(self.Vs[s])
+        
+        
+        valids = dict(self.Vs)[s]
         cur_best = -float('inf')
         best_act = []
 

@@ -1,8 +1,8 @@
 import numpy as np
-# import logging
-# import loggers as lg
-from .preprocessing import move_to_index
 from copy import deepcopy
+from preprocessing import move_to_index
+
+print("this is new one")
 
 
 class Board():
@@ -14,45 +14,45 @@ class Board():
     LIMIT_TURN = 150
     LIMIT_STALE = 32
 
-    def __init__(self, board=[], playerTurn=1, turn=0, stale=0):
+    def __init__(self, board= "" , playerTurn=1, turn=0, stale=0):
         if len(board) == 0:
             self.board = self.reset_board()
         else:
             self.board = board
-        self.pieces = {'-3': '-3', '-1': '-1', '0': '0', '1': '1', '3': '3'}
+            
         self.playerTurn = playerTurn
         self.turn = turn
         self.stale = stale
-        self.binary = self._binary()
-        self.id = self._convertStateToId()
-        self.allowedActions = self._allowedActions()
-        self.isEndGame = self._checkForEndGame()
-        self.value = self._getValue()
-        self.score = self._getScore()
-        self.flatten_board = self.board.reshape(64)
+        #self.boardPosition = self._boardPosition()
         
-        self.cur_pieces = self.flatten_board[self.flatten_board == 0].shape[0]
+        #self.binary = self._binary()
+        #self.id = self._convertStateToId()
+        #self.allowedActions = self._allowedActions()
+        #self.isEndGame = self._checkForEndGame()
+        #self.value = self._getValue()
+        #self.score = self._getScore()
+        #self.flatten_board = self.board.reshape(64)
+        #self.cur_pieces = self.flatten_board[self.flatten_board == 0].shape[0]
         
         
         
-        self.boardPositon = self._boardPosition()
     def _boardPosition(self):
-        bp = {-3: [], -1: [],1: [], 3: []}
+        bp = {-3: [], -1: [] ,1: [], 3: []}
+        board = self.board
         for i in range(8):
             for j in range(8):
-                position = (i, j)
-                if self.board[position] == -3
-                    bp[-3].append(position)
-                if self.board[position] == -1
-                    bp[-1].append(position)
-                if self.board[position] == 3
-                    bp[3].append(position)
-                if self.board[position] == 1
-                    bp[1].append(position)
-        print(bp)
+                position = (i,j)
+                unit = board[position]
+                if unit == 0:
+                    continue
+                else:
+                    bp[unit].append(position)
         return bp
-   
     
+    def _getCurpiece(self):
+        flat_board = self.board.reshape(64)
+        return flat_board[flat_board  == 0].shape[0]
+        
 
     def _allowedActions(self):
         legal_moves = self.get_legal_moves()
@@ -104,10 +104,10 @@ class Board():
         # print(newCheckers.board)
         newState = Board(newCheckers.board, -
                          self.playerTurn, newCheckers.turn)
-        if newState.cur_pieces == self.cur_pieces:
+        if newState._getCurpiece() == self._getCurpiece():
             newState.stale = self.stale+1
             # print('STALE :', newState.stale)
-        return (newState, newState.value, newState.isEndGame)
+        return (newState, newState._getValue(), newState._checkForEndGame())
 
     def render(self, logger):
         logger.info('\n' + str(self.board))
@@ -177,38 +177,47 @@ class Board():
 
     def get_possible_moves(self, position):
         row, col = position
-        possible_moves = []
         # King
         # Search in 4 directions until found a piece or out of the board
         if self.is_king(position) and not self.is_opponent(position):
+            # possible_moves = []
+            # for i in range(7):
+            #     nw_move = (row - i - 1, col - i - 1)
+            #     if not self.is_in_board_range(nw_move) or self.is_occupied(nw_move):
+            #         break
+            #     possible_moves.append(nw_move)
+            # for i in range(7):
+            #     ne_move = (row - i - 1, col + i + 1)
+            #     if not self.is_in_board_range(ne_move) or self.is_occupied(ne_move):
+            #         break
+            #     possible_moves.append(ne_move)
+            # for i in range(7):
+            #     sw_move = (row + i + 1, col - i - 1)
+            #     if not self.is_in_board_range(sw_move) or self.is_occupied(sw_move):
+            #         break
+            #     possible_moves.append(sw_move)
+            # for i in range(7):
+            #     se_move = (row + i + 1, col + i + 1)
+            #     if not self.is_in_board_range(se_move) or self.is_occupied(se_move):
+            #         break
+            #     possible_moves.append(se_move)
+            psb_move = [i for  i in range(28)]
             for i in range(7):
-                nw_move = (row - i - 1, col - i - 1)
-                if not self.is_in_board_range(nw_move) or self.is_occupied(nw_move):
-                    break
-                possible_moves.append(nw_move)
-            for i in range(7):
-                ne_move = (row - i - 1, col + i + 1)
-                if not self.is_in_board_range(ne_move) or self.is_occupied(ne_move):
-                    break
-                possible_moves.append(ne_move)
-            for i in range(7):
-                sw_move = (row + i + 1, col - i - 1)
-                if not self.is_in_board_range(sw_move) or self.is_occupied(sw_move):
-                    break
-                possible_moves.append(sw_move)
-            for i in range(7):
-                se_move = (row + i + 1, col + i + 1)
-                if not self.is_in_board_range(se_move) or self.is_occupied(se_move):
-                    break
-                possible_moves.append(se_move)
+                psb_move[0+i] = (row + (i + 1), col - (i + 1))
+                psb_move[7+i] = (row + (i + 1), col + (i + 1))
+                psb_move[14+i] = (row - (i + 1), col + (i + 1))
+                psb_move[21+i] = (row - (i + 1), col - (i +1))
+            filt = list(filter(lambda x : self.is_in_board_range(x) and (not self.is_occupied(x)),psb_move))
+            return filt
         # Not king
-        elif self.playerTurn == self.board[position]:
-            west_move = (-1, -1)
-            east_move = (-1, -1)
+        else:
+            # west_move = (-1, -1)
+            # east_move = (-1, -1)
+            possible_moves = []
             if self.playerTurn == self.PLAYER_1:
                 west_move = (row - 1, col - 1)
                 east_move = (row - 1, col + 1)
-            elif self.playerTurn == self.PLAYER_2:
+            else:
                 west_move = (row + 1, col - 1)
                 east_move = (row + 1, col + 1)
             if self.is_in_board_range(west_move) and not self.is_occupied(west_move):
@@ -221,18 +230,35 @@ class Board():
     # Return in a array of (current_position, posible_move)
 
     def get_all_possible_moves(self):
+        # all_possible_moves = []
+        # for i in range(8):
+        #     for j in range(8):
+        #         position = (i, j)
+        #         if self.board[position] == self.playerTurn or (self.is_king(position) and not self.is_opponent(position)):
+        #             possible_moves = self.get_possible_moves(position)
+        #             if possible_moves:
+        #                 # all_possible_moves += [(position, possible_moves)]
+        #                 for possible_move in possible_moves:
+        #                     all_possible_moves.append(
+        #                         (position, possible_move))
+        # return all_possible_moves
+    
+        #======================== Chin Part ============================
         all_possible_moves = []
-        for i in range(8):
-            for j in range(8):
-                position = (i, j)
-                if self.board[position] == self.playerTurn or (self.is_king(position) and not self.is_opponent(position)):
-                    possible_moves = self.get_possible_moves(position)
-                    if possible_moves:
-                        # all_possible_moves += [(position, possible_moves)]
-                        for possible_move in possible_moves:
+        for position in self.boardPosition[self.playerTurn*1]:
+            possible_moves = self.get_possible_moves(position)
+            if possible_moves:
+                for possible_move in possible_moves:
+                            all_possible_moves.append(
+                                (position, possible_move))
+        for position in self.boardPosition[self.playerTurn*3]:
+            possible_moves = self.get_possible_moves(position)
+            if possible_moves:
+                for possible_move in possible_moves:
                             all_possible_moves.append(
                                 (position, possible_move))
         return all_possible_moves
+    
 
     # Move the checker from an old position to a new position if the move is legal
 
@@ -310,7 +336,7 @@ class Board():
                     ne_jump = (row - 2, col + 2)
                     if self.is_in_board_range(ne_jump) and not self.is_occupied(ne_jump):
                         possible_jumps.append((ne_jump, [ne_jumped]))
-            elif selected_piece == self.PLAYER_2:
+            else:
                 sw_jumped = (row + 1, col - 1)
                 if self.is_in_board_range(sw_jumped) and self.is_occupied(sw_jumped) and self.is_opponent(sw_jumped):
                     sw_jump = (row + 2, col - 2)
@@ -342,17 +368,36 @@ class Board():
     # Return in a array of (current_position, posible_jump)
 
     def get_all_possible_jumps(self):
+        # all_possible_jumps = []
+        # for i in range(8):
+        #     for j in range(8):
+        #         position = (i, j)
+        #         if self.board[position] == self.playerTurn or (self.is_king(position) and not self.is_opponent(position)):
+        #             possible_jumps = self.get_possible_jumps(position)
+        #             if possible_jumps:
+        #                 for possible_jump in possible_jumps:
+        #                     all_possible_jumps.append(
+        #                         (position, possible_jump[0]))
+        # return all_possible_jumps
+    
+    
+    
+        #======================== Chin Part ============================
         all_possible_jumps = []
-        for i in range(8):
-            for j in range(8):
-                position = (i, j)
-                if self.board[position] == self.playerTurn or (self.is_king(position) and not self.is_opponent(position)):
-                    possible_jumps = self.get_possible_jumps(position)
-                    if possible_jumps:
-                        for possible_jump in possible_jumps:
+        for position in self.boardPosition[self.playerTurn*1]:
+            possible_jumps = self.get_possible_jumps(position)
+            if possible_jumps:
+                for possible_jump in possible_jumps:
+                            all_possible_jumps.append(
+                                (position, possible_jump[0]))
+        for position in self.boardPosition[self.playerTurn*3]:
+            possible_jumps = self.get_possible_jumps(position)
+            if possible_jumps:
+                for possible_jump in possible_jumps:
                             all_possible_jumps.append(
                                 (position, possible_jump[0]))
         return all_possible_jumps
+        
 
     # Jump from a current position to a new position if the jump is regal
 
@@ -418,6 +463,7 @@ class Board():
             return 0
 
     def get_legal_moves(self):
+        self.boardPosition = self._boardPosition()
         possible_jumps = self.get_all_possible_jumps()
         possible_moves = self.get_all_possible_moves()
         if possible_jumps:
@@ -427,6 +473,7 @@ class Board():
         return []
 
     def make_move(self, move):
+        self.boardPosition = self._boardPosition()
         current_position, new_position = move
         possible_jumps = self.get_all_possible_jumps()
         possible_moves = self.get_all_possible_moves()
@@ -457,20 +504,40 @@ class Board():
         return self.board
 
     def flip(self):
-        tempBoard = np.flipud(self.board)
-        tempBoard = np.fliplr(tempBoard)
+    #     st = time.time()
+    #     tempBoard = np.flipud(self.board)
+    #     tempBoard = np.fliplr(tempBoard)
+    #     flippedBoard = np.zeros((8, 8), dtype=np.int)
+    #     for i in range(8):
+    #         for j in range(8):
+    #             if tempBoard[i][j] == self.PLAYER_1:
+    #                 flippedBoard[i][j] = self.PLAYER_2
+    #             elif tempBoard[i][j] == self.PLAYER_2:
+    #                 flippedBoard[i][j] = self.PLAYER_1
+    #             elif tempBoard[i][j] == self.PLAYER_1_KING:
+    #                 flippedBoard[i][j] = self.PLAYER_2_KING
+    #             elif tempBoard[i][j] == self.PLAYER_2_KING:
+    #                 flippedBoard[i][j] = self.PLAYER_1_KING
+    #     print(time.time() - st)
+    #     return flippedBoard
+    
+    #=========== Chin Part ===================================================
+    # def flip_test(self):
         flippedBoard = np.zeros((8, 8), dtype=np.int)
-        for i in range(8):
-            for j in range(8):
-                if tempBoard[i][j] == self.PLAYER_1:
-                    flippedBoard[i][j] = self.PLAYER_2
-                elif tempBoard[i][j] == self.PLAYER_2:
-                    flippedBoard[i][j] = self.PLAYER_1
-                elif tempBoard[i][j] == self.PLAYER_1_KING:
-                    flippedBoard[i][j] = self.PLAYER_2_KING
-                elif tempBoard[i][j] == self.PLAYER_2_KING:
-                    flippedBoard[i][j] = self.PLAYER_1_KING
+        bp = self._boardPosition()
+        for i in bp[-3]:
+            flippedBoard[(7-i[0],7-i[1])] = 3
+        for i in bp[-1]:
+            flippedBoard[(7-i[0],7-i[1])] = 1
+        for i in bp[1]:
+            flippedBoard[(7-i[0],7-i[1])] = -1 
+        for i in bp[3]:
+            flippedBoard[(7-i[0],7-i[1])] = -3
         return flippedBoard
+            
+    
+    
 
-    def __str__(self, board):
-        return np.array2string(board)
+    def __str__(self):
+        return np.array2string(self.board)
+

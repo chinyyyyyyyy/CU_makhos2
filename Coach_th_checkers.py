@@ -4,6 +4,7 @@ import logging
 import random
 from random import shuffle
 import time
+import sys
 
 import numpy as np
 import pandas as pd
@@ -31,7 +32,20 @@ logging.basicConfig(
     )
 
 
-def AsyncSelfPlay(mcts,nnet, game, args, iter_num): 
+def AsyncSelfPlay(mcts,nnet, game, args, iter_num, ns): 
+    
+    
+    ##================ Memory Freze protection ====================
+    
+    if ns.leak:
+        print('memory leak already leak')
+        return
+   
+    if (psutil.virtual_memory()[2]) > 90:
+        print('memory leak')
+        ns.leak = True
+        return 
+    ##=============================================================
     
     logging.debug("self playing game" + str(iter_num))
 
@@ -67,7 +81,6 @@ def AsyncSelfPlay(mcts,nnet, game, args, iter_num):
         
 
         if r != 0:
-            logging.debug('number of visited in tree' + str(mcts.states_visited))
             end_game_time  = time.time()
             game_duration = end_game_time - start_game_time
             p = psutil.Process()
@@ -147,7 +160,13 @@ def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
         print('Total train samples (moves):', len(trainExamples))
 
         nnet.train(trainExamples)
-        nnet.save_checkpoint(folder=args.checkpoint,
+        
+        
+        if args.shared_tree:
+            nnet.save_checkpoint(folder=args.checkpoint,
+                            filename='train_iter_shared_tree_' + str(iter_num) + '.pth.tar')
+        else:
+            nnet.save_checkpoint(folder=args.checkpoint,
                             filename='train_iter_' + str(iter_num) + '.pth.tar')
 
 
@@ -208,8 +227,13 @@ class Coach():
         
         reports = []
         
+        mana = multiprocessing.Manager()
+        ns = mana.Namespace()
+        ns.leak = False
+        
         net = self.nnet1
-        if self.args.shared_tree == True:
+        
+        if self.args.shared_tree:
             mcts = MCTS_shared(self.game, net, self.args)
         else:
             mcts = MCTS(self.game, net, self.args)
@@ -217,10 +241,19 @@ class Coach():
 
         for i in range(self.args.numEps):
             res.append(pool.apply_async(AsyncSelfPlay, args=(
-                mcts,net, self.game, self.args, i)))
+                mcts,net, self.game, self.args, i,ns)))
 
         pool.close()
         pool.join()
+        
+        if ns.leak:
+            pool.terminate()
+            print("terminate program")
+            sys.exit()
+            
+        
+    
+        
 
         for i in res:
             gameplay, r ,report = i.get()
@@ -358,7 +391,7 @@ class Coach():
         for param_group in self.nnet1.optimizer.param_groups:
             print(param_group['lr'])
 
-
+        
 
         start_iter = 1
         if self.args.load_model:
@@ -392,6 +425,7 @@ class Coach():
             reports = self.parallel_self_play()
             report_df = pd.DataFrame(reports)
             report_df.to_csv('/root/test/CU_Makhos/time_reports/iter' + str(i))
+            sys.exit()
             
             
 
@@ -572,3 +606,4 @@ class Coach():
             # self.train_network(i)
             # self.trainExamplesHistory.clear()
             # self.parallel_self_test_play(i)
+            

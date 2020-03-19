@@ -1,7 +1,6 @@
 from Coach_th_checkers import Coach
 from ThaiCheckers.ThaiCheckersGame import ThaiCheckersGame as Game
-from ThaiCheckers.pytorch.NNet import NNetWrapper as nn
-from utils import *
+from utils import dotdict
 import os
 
 """
@@ -12,7 +11,7 @@ Before using multiprocessing, please check 2 things before use this script.
 
 args = dotdict({
     'numIters': 500,
-    'numEps': 500,  # 25000
+    'numEps': 30,  # 25000
     'tempThreshold': 15,  # not used
     'updateThreshold': 0.55,  # not used
     'maxlenOfQueue': 200000,
@@ -21,8 +20,8 @@ args = dotdict({
     'cpuct': 2,
 
     'multiGPU': False,
-    'setGPU': '1',
-    'numSelfPlayPool': 12,
+    'setGPU': '0',
+    'numSelfPlayPool': 10,
     'numTestPlayPool': 12,
 
     'checkpoint': '/root/test/CU_Makhos/models_minimax/',
@@ -31,7 +30,7 @@ args = dotdict({
     'load_folder_file': '/root/test/CU_Makhos/models_minimax/',
     'numItersForTrainExamplesHistory': 4 , # 4
     
-    'shared_tree' : True
+    'shared_tree' : False
 
 })
 
@@ -45,3 +44,4 @@ if __name__ == "__main__":
     # c.learn_minimax()
     # c.args.load_iter = 30
     c.learn()
+

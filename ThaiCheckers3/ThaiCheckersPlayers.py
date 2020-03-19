@@ -1,6 +1,9 @@
 import numpy as np
+import time
 import copy
-from ThaiCheckersLogic import Board
+from .preprocessing import move_to_index, index_to_move
+from .ThaiCheckersLogic import Board
+from random import randint
 from random import choice
 
 

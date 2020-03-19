@@ -58,3 +58,7 @@ def index_to_move_human(idx):
 
 	((start_x, start_y),(end_x, end_y)) = index_to_move(idx)
 	return ((start_x+1,d[start_y]),(end_x+1,d[end_y]))
+
+
+if __name__ == '__main__':
+	pass
