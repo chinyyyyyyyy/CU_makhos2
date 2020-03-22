@@ -84,7 +84,10 @@ def AsyncSelfPlay(nnet, game, args, iter_num, ns):
             game_duration = end_game_time - start_game_time
             p = psutil.Process()
             report = [iter_num, start_game_time, end_game_time, game_duration, p.cpu_num(), p.memory_info()[0]/(1024*1024*1024), moves_records]
-            return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r, report 
+            logging.debug("side of Ps" + sys.getsizeof(mcts.Ps/1024))
+            logging.debug("side of Es" + sys.getsizeof(mcts.Es/1024))
+            logging.debug("side of Es" + sys.getsizeof(mcts.Vs/1024))
+            return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r, report ,mcts.Ps, mcts.Vs, mcts.Es
 
 
 def AsyncMinimaxPlay(game, args,gameth):
@@ -115,7 +118,7 @@ def AsyncMinimaxPlay(game, args,gameth):
 
         if r != 0:
 
-            return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r
+            return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r 
 
 
 def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
@@ -230,7 +233,7 @@ class Coach():
         ns = mana.Namespace()
         ns.leak = False
 
-        for i in range(self.args.numEps):
+        for i in range(5):
             net = self.nnet1
             res.append(pool.apply_async(AsyncSelfPlay, args=(
                 net, self.game, self.args, i,ns)))
@@ -243,12 +246,16 @@ class Coach():
             print("terminate program")
             sys.exit()
             
-        
+        Ps_tree =  {0:"", 1:"", 2:"", 3:"", 4:""}
+        Es_tree =  {0:"", 1:"", 2:"", 3:"", 4:""}
+        Vs_tree =  {0:"", 1:"", 2:"", 3:"", 4:""}
     
         
+        logging.debug("finish learning merging tree")
+        
 
-        for i in res:
-            gameplay, r ,report = i.get()
+        for i in range(len(res)):
+            gameplay, r ,report,Ps_tree[i],Es_tree[i],Vs_tree[i] = i.get()
             result.append(gameplay)
             reports.append(report)
             if (r == 1e-4):
@@ -271,6 +278,23 @@ class Coach():
 
         for i in temp_loss_games:
             self.loss_games += i
+            
+            
+        s = time.time()
+            
+        merge_ps_tree = {**Ps_tree[0],**Ps_tree[1],**Ps_tree[2],**Ps_tree[3],**Ps_tree[4]}
+        merge_vs_tree = {**Vs_tree[0],**Vs_tree[1],**Vs_tree[2],**Vs_tree[3],**Vs_tree[4]}
+        merge_es_tree = {**Es_tree[0],**Es_tree[1],**Es_tree[2],**Es_tree[3],**Es_tree[4]}
+        
+        merege_time = time.time() - s
+        
+        print(sys.getsizeof(merge_ps_tree))
+        print(sys.getsizeof(merge_vs_tree))
+        print(sys.getsizeof(merge_es_tree))
+        print(merege_time)
+        
+        
+        
         
         return reports
 
