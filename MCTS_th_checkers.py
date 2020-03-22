@@ -21,6 +21,7 @@ class MCTS():
         self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
         self.Nsa = {}       # stores #times edge s,a was visited
         self.Ns = {}        # stores #times board s was visited
+        
         self.Ps = merge_tree[0]        # stores initial policy (returned by neural net)
         self.Es = merge_tree[1]        # stores game.getGameEnded ended for board s
         self.Vs = merge_tree[2]        # stores game.getValidMoves for board s

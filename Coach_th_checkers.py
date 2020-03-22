@@ -86,8 +86,8 @@ def AsyncSelfPlay(merge_tree, nnet, game, args, iter_num, ns):
             report = [iter_num, start_game_time, end_game_time, game_duration, p.cpu_num(), p.memory_info()[0]/(1024*1024*1024), moves_records]
             logging.debug("side of Ps " + str(sys.getsizeof(mcts.Ps)/1024))
             logging.debug("side of Es " + str(sys.getsizeof(mcts.Es)/1024))
-            logging.debug("side of Es " + str(sys.getsizeof(mcts.Vs)/1024))
-            return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r, report ,mcts.Ps, mcts.Vs, mcts.Es
+            logging.debug("side of Vs " + str(sys.getsizeof(mcts.Vs)/1024))
+            return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r, report ,mcts.Ps, mcts.Es, mcts.Vs
 
 
 def AsyncMinimaxPlay(game, args,gameth):
