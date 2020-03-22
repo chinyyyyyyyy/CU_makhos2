@@ -14,7 +14,6 @@ import torch
 import psutil
 
 from MCTS_th_checkers import MCTS
-from MCTS_th_checkers_shared import MCTS_shared
 from Arena import Arena
 from ThaiCheckers.pytorch.NNet import NNetWrapper as nn
 from ThaiCheckers.ThaiCheckersPlayers import minimaxAI
@@ -34,7 +33,7 @@ logging.basicConfig(
 
 def AsyncSelfPlay(nnet, game, args, iter_num, ns): 
 
-    mcts = MCTS(game, net, args)    
+    mcts = MCTS(game, nnet, args)    
     ##================ Memory Freze protection ====================
     
     if ns.leak:
