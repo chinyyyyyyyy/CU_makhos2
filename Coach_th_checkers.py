@@ -31,9 +31,9 @@ logging.basicConfig(
     )
 
 
-def AsyncSelfPlay(nnet, game, args, iter_num, ns): 
+def AsyncSelfPlay(merge_tree, nnet, game, args, iter_num, ns): 
 
-    mcts = MCTS(game, nnet, args)    
+    mcts = MCTS(game, nnet, args, merge_tree)    
     ##================ Memory Freze protection ====================
     
     if ns.leak:
@@ -84,9 +84,9 @@ def AsyncSelfPlay(nnet, game, args, iter_num, ns):
             game_duration = end_game_time - start_game_time
             p = psutil.Process()
             report = [iter_num, start_game_time, end_game_time, game_duration, p.cpu_num(), p.memory_info()[0]/(1024*1024*1024), moves_records]
-            logging.debug("side of Ps" + str(sys.getsizeof(mcts.Ps)/1024))
-            logging.debug("side of Es" + str(sys.getsizeof(mcts.Es)/1024))
-            logging.debug("side of Es" + str(sys.getsizeof(mcts.Vs)/1024))
+            logging.debug("side of Ps " + str(sys.getsizeof(mcts.Ps)/1024))
+            logging.debug("side of Es " + str(sys.getsizeof(mcts.Es)/1024))
+            logging.debug("side of Es " + str(sys.getsizeof(mcts.Vs)/1024))
             return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r, report ,mcts.Ps, mcts.Vs, mcts.Es
 
 
@@ -218,80 +218,86 @@ class Coach():
         self.draw_games = []
 
     def parallel_self_play(self):
-        pool = mp.Pool(processes=self.args.numSelfPlayPool, maxtasksperchild=1)
-        temp = []
-        res = []
-        result = []
+        
 
-        temp_draw_games = []
-        temp_win_games = []
-        temp_loss_games = []
+        # temp_draw_games = []
+        # temp_win_games = []
+        # temp_loss_games = []
         
         reports = []
         
         mana = multiprocessing.Manager()
         ns = mana.Namespace()
         ns.leak = False
-
-        for i in range(5):
-            net = self.nnet1
-            res.append(pool.apply_async(AsyncSelfPlay, args=(
-                net, self.game, self.args, i,ns)))
-
-        pool.close()
-        pool.join()
         
-        if ns.leak:
-            pool.terminate()
-            print("terminate program")
-            sys.exit()
-            
-        Ps_tree =  {0:"", 1:"", 2:"", 3:"", 4:""}
-        Es_tree =  {0:"", 1:"", 2:"", 3:"", 4:""}
-        Vs_tree =  {0:"", 1:"", 2:"", 3:"", 4:""}
+        merge_tree = {0 : {}, 1 : {}, 2 : {}}
+        
+        
+        for k in range(3):
+            pool = mp.Pool(processes=self.args.numSelfPlayPool, maxtasksperchild=1)
+            res = []
+           
+            for i in range(10):
+                net = self.nnet1
+                res.append(pool.apply_async(AsyncSelfPlay, args=(
+                    merge_tree, net, self.game, self.args, i,ns)))
     
-        
-        logging.debug("finish learning merging tree")
-        
-
-        for i in range(len(res)):
-            gameplay, r ,report,Ps_tree[i],Es_tree[i],Vs_tree[i] = res[i].get()
-            result.append(gameplay)
-            reports.append(report)
-            if (r == 1e-4):
-                self.draw_count += 1
-                temp_draw_games.append(gameplay)
-            elif r == 1:
-                self.win_count += 1
-                temp_win_games.append(gameplay)
-            else:
-                self.loss_count += 1
-                temp_loss_games.append(gameplay)
-
-        for i in result:
-            temp += i
-        for i in temp_draw_games:
-            self.draw_games += i
-
-        for i in temp_win_games:
-            self.win_games += i
-
-        for i in temp_loss_games:
-            self.loss_games += i
+            pool.close()
+            pool.join()
             
-            
-        s = time.time()
-            
-        merge_ps_tree = {**Ps_tree[0],**Ps_tree[1],**Ps_tree[2],**Ps_tree[3],**Ps_tree[4]}
-        merge_vs_tree = {**Vs_tree[0],**Vs_tree[1],**Vs_tree[2],**Vs_tree[3],**Vs_tree[4]}
-        merge_es_tree = {**Es_tree[0],**Es_tree[1],**Es_tree[2],**Es_tree[3],**Es_tree[4]}
+            if ns.leak:
+                pool.terminate()
+                print("terminate program")
+                sys.exit()
+                
+            Ps_tree =  {0:"", 1:"", 2:"", 3:"", 4:"", 5:"", 6:"", 7:"", 8:"", 9:""}
+            Es_tree =  {0:"", 1:"", 2:"", 3:"", 4:"", 5:"", 6:"", 7:"", 8:"", 9:""}
+            Vs_tree =  {0:"", 1:"", 2:"", 3:"", 4:"", 5:"", 6:"", 7:"", 8:"", 9:""}
         
-        merege_time = time.time() - s
-        
-        print(sys.getsizeof(merge_ps_tree))
-        print(sys.getsizeof(merge_vs_tree))
-        print(sys.getsizeof(merge_es_tree))
-        print(merege_time)
+            
+            logging.debug("finish learning merging tree")
+            
+    
+            for i in range(len(res)):
+                gameplay, r, report, Ps_tree[i], Es_tree[i], Vs_tree[i] = res[i].get()
+                reports.append(report)
+                if (r == 1e-4):
+                    self.draw_count += 1
+                    self.draw_games.append(gameplay)
+                elif r == 1:
+                    self.win_count += 1
+                    self.win_games.append(gameplay)
+                else:
+                    self.loss_count += 1
+                    self.loss_games.append(gameplay)
+    
+
+            # for i in temp_draw_games:
+            #     self.draw_games += i
+    
+            # for i in temp_win_games:
+            #     self.win_games += i
+    
+            # for i in temp_loss_games:
+            #     self.loss_games += i
+                
+                
+            s = time.time()
+                
+            merge_ps_tree = {**Ps_tree[0], **Ps_tree[1], **Ps_tree[2], **Ps_tree[3], **Ps_tree[4], **Ps_tree[5], **Ps_tree[6], **Ps_tree[7], **Ps_tree[8], **Ps_tree[9]}
+            merge_vs_tree = {**Vs_tree[0], **Vs_tree[1], **Vs_tree[2], **Vs_tree[3], **Vs_tree[4], **Vs_tree[5], **Vs_tree[6], **Vs_tree[7], **Vs_tree[8], **Vs_tree[9]}
+            merge_es_tree = {**Es_tree[0], **Es_tree[1], **Es_tree[2], **Es_tree[3], **Es_tree[4], **Es_tree[5], **Es_tree[6], **Es_tree[7], **Es_tree[8], **Es_tree[9]}
+            
+            merege_time = time.time() - s
+            
+            print(sys.getsizeof(merge_ps_tree)/1024)
+            print(sys.getsizeof(merge_vs_tree)/1024)
+            print(sys.getsizeof(merge_es_tree)/1024)
+            print("merge time =",merege_time)
+            
+            merge_tree[0] = merge_ps_tree
+            merge_tree[1] = merge_es_tree
+            merge_tree[2] = merge_vs_tree
         
         
         

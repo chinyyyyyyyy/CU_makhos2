@@ -1,7 +1,6 @@
 import math
 import numpy as np
 import random
-from collections import deque
 EPS = 1e-8
 
 
@@ -10,8 +9,8 @@ class MCTS():
     This class handles the MCTS tree.
     """
 
-    def __init__(self, game, nnet, args, eval=False, verbose=False):
-        self.game = game
+    def __init__(self, game, nnet, args, merge_tree, eval=False, verbose=False):
+        self.game = game 
         self.nnet = nnet
         self.args = args
         self.verbose = verbose
@@ -22,9 +21,9 @@ class MCTS():
         self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
         self.Nsa = {}       # stores #times edge s,a was visited
         self.Ns = {}        # stores #times board s was visited
-        self.Ps = {}        # stores initial policy (returned by neural net)
-        self.Es = {}        # stores game.getGameEnded ended for board s
-        self.Vs = {}        # stores game.getValidMoves for board s
+        self.Ps = merge_tree[0]        # stores initial policy (returned by neural net)
+        self.Es = merge_tree[1]        # stores game.getGameEnded ended for board s
+        self.Vs = merge_tree[2]        # stores game.getValidMoves for board s
 
     def getActionProb(self, boardHistory, temp=1):
         """
@@ -174,10 +173,10 @@ class MCTS():
         self.Ns[s] += 1
         return -v
 
-    def reset_tree(self):
-        self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
-        self.Nsa = {}       # stores #times edge s,a was visited
-        self.Ns = {}        # stores #times board s was visited
-        self.Ps = {}        # stores initial policy (returned by neural net)
-        self.Es = {}        # stores game.getGameEnded ended for board s
-        self.Vs = {}        # stores game.getValidMoves for board s
+    # def reset_tree(self):
+    #     self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
+    #     self.Nsa = {}       # stores #times edge s,a was visited
+    #     self.Ns = {}        # stores #times board s was visited
+    #     self.Ps = {}        # stores initial policy (returned by neural net)
+    #     self.Es = {}        # stores game.getGameEnded ended for board s
+    #     self.Vs = {}        # stores game.getValidMoves for board s
