@@ -232,7 +232,7 @@ class Coach():
         ns.leak = False
 
         for i in range(self.args.numEps):
-	    net = self.nnet1
+            net = self.nnet1
             res.append(pool.apply_async(AsyncSelfPlay, args=(
                 net, self.game, self.args, i,ns)))
 
