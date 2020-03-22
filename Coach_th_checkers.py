@@ -84,9 +84,9 @@ def AsyncSelfPlay(nnet, game, args, iter_num, ns):
             game_duration = end_game_time - start_game_time
             p = psutil.Process()
             report = [iter_num, start_game_time, end_game_time, game_duration, p.cpu_num(), p.memory_info()[0]/(1024*1024*1024), moves_records]
-            logging.debug("side of Ps" + sys.getsizeof(mcts.Ps/1024))
-            logging.debug("side of Es" + sys.getsizeof(mcts.Es/1024))
-            logging.debug("side of Es" + sys.getsizeof(mcts.Vs/1024))
+            logging.debug("side of Ps" + str(sys.getsizeof(mcts.Ps)/1024))
+            logging.debug("side of Es" + str(sys.getsizeof(mcts.Es)/1024))
+            logging.debug("side of Es" + str(sys.getsizeof(mcts.Vs)/1024))
             return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r, report ,mcts.Ps, mcts.Vs, mcts.Es
 
 
@@ -255,7 +255,7 @@ class Coach():
         
 
         for i in range(len(res)):
-            gameplay, r ,report,Ps_tree[i],Es_tree[i],Vs_tree[i] = i.get()
+            gameplay, r ,report,Ps_tree[i],Es_tree[i],Vs_tree[i] = res[i].get()
             result.append(gameplay)
             reports.append(report)
             if (r == 1e-4):
