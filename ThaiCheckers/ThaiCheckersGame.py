@@ -42,7 +42,7 @@ class ThaiCheckersGame(Game):
         self.gameState = next_state
         self.currentPlayer = -player
 
-        if (player == self.gameState.PLAYER_2):
+        if (player == -1):
             self.gameState.board = self.gameState.flip()
 
         return self.gameState.board, -player
@@ -70,7 +70,7 @@ class ThaiCheckersGame(Game):
             return 0
 
     def getCanonicalForm(self, board, player):
-        if player == self.gameState.PLAYER_2:
+        if player == -1:
             return Board(board.copy()).flip()
         return board
 

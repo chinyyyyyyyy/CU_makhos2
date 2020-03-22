@@ -32,9 +32,9 @@ logging.basicConfig(
     )
 
 
-def AsyncSelfPlay(mcts,nnet, game, args, iter_num, ns): 
-    
-    
+def AsyncSelfPlay(nnet, game, args, iter_num, ns): 
+
+    mcts = MCTS(game, net, args)    
     ##================ Memory Freze protection ====================
     
     if ns.leak:
@@ -230,18 +230,11 @@ class Coach():
         mana = multiprocessing.Manager()
         ns = mana.Namespace()
         ns.leak = False
-        
-        net = self.nnet1
-        
-        if self.args.shared_tree:
-            mcts = MCTS_shared(self.game, net, self.args)
-        else:
-            mcts = MCTS(self.game, net, self.args)
-
 
         for i in range(self.args.numEps):
+	    net = self.nnet1
             res.append(pool.apply_async(AsyncSelfPlay, args=(
-                mcts,net, self.game, self.args, i,ns)))
+                net, self.game, self.args, i,ns)))
 
         pool.close()
         pool.join()
