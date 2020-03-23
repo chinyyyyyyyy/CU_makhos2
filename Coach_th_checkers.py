@@ -243,7 +243,7 @@ class Coach():
                 net = self.nnet1
                 res.append(pool.apply_async(AsyncSelfPlay, args=(
                     merge_tree, net, self.game, self.args, i,ns)))
-		print(psutil.virtual_memory()[2])
+                print(psutil.virtual_memory()[2])
     
             pool.close()
             pool.join()
