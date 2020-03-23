@@ -233,7 +233,7 @@ class Coach():
         merge_tree = {0 : {}, 1 : {}, 2 : {}}
         
         
-        for k in range(5):
+        for k in range(4):
             pool = mp.Pool(processes=self.args.numSelfPlayPool, maxtasksperchild=1)
             res = []
            

@@ -21,7 +21,7 @@ args = dotdict({
 
     'multiGPU': False,
     'setGPU': '0',
-    'numSelfPlayPool': 10,
+    'numSelfPlayPool': 5,
     'numTestPlayPool': 12,
 
     'checkpoint': '/root/test/CU_Makhos/models_minimax/',
