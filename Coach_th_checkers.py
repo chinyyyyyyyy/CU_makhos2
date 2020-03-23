@@ -31,9 +31,9 @@ logging.basicConfig(
     )
 
 
-def AsyncSelfPlay(merge_tree, nnet, game, args, iter_num, ns): 
+def AsyncSelfPlay(nnet, game, args, iter_num, ns): 
 
-    mcts = MCTS(game, nnet, args, merge_tree)    
+    mcts = MCTS(game, nnet, args)    
     ##================ Memory Freze protection ====================
     
     if ns.leak:
@@ -229,8 +229,7 @@ class Coach():
 
         for i in range(30):
             net = self.nnet1
-            res.append(pool.apply_async(AsyncSelfPlay, args=(
-                 net, self.game, self.args, i,ns)))
+            res.append(pool.apply_async(AsyncSelfPlay, args=(net, self.game, self.args, i,ns)))
             print(psutil.virtual_memory()[2])
 
         pool.close()
