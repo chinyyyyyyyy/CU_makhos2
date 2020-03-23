@@ -95,6 +95,9 @@ class MCTS():
 
         if self.Es[s] != 0:
             return -self.Es[s]
+        
+        if s not in self.Ns:
+            self.Ns[s] = 0
 
         if s not in self.Ps:
             # leaf node
@@ -103,7 +106,6 @@ class MCTS():
                 boardHistory, self.game.gameState.turn, self.game.gameState.stale, valids)
             
 
-            # valids = self.game.getValidMoves(canonicalBoard, 1)
             # self.Ps[s] = self.Ps[s]*valids      # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             # print(sum_Ps_s)
@@ -126,7 +128,9 @@ class MCTS():
 
         if is_search_root and not self.eval:
             dir_noise = np.random.dirichlet([1]*32*32)
-            self.Ps[s] = 0.75*self.Ps[s] + 0.25*dir_noise
+            tempps = 0.75*self.Ps[s] + 0.25*dir_noise
+        else:
+            tempps = self.Ps[s]
 
         valids = self.Vs[s]
         cur_best = -float('inf')
@@ -136,11 +140,11 @@ class MCTS():
         for a in range(self.game.getActionSize()):
             if valids[a]:
                 if (s, a) in self.Qsa:
-                    u = self.Qsa[(s, a)] + self.args.cpuct*self.Ps[s][a] * \
+                    u = self.Qsa[(s, a)] + self.args.cpuct*tempps[a] * \
                         math.sqrt(self.Ns[s])/(1+self.Nsa[(s, a)])
                 else:
                     u = self.args.cpuct * \
-                        self.Ps[s][a]*math.sqrt(self.Ns[s] + EPS)     # Q = 0 ?
+                        tempps[a]*math.sqrt(self.Ns[s] + EPS)     # Q = 0 ?
 
                 if u > cur_best:
                     cur_best = u
@@ -152,10 +156,6 @@ class MCTS():
 
         # a = best_act
         next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
-        # print()
-        # print('sim board')
-        # print(next_s)
-        # print()
         next_s = self.game.getCanonicalForm(next_s, next_player)
         # newHistory = boardHistory.copy()
         # newHistory.append(next_s)
