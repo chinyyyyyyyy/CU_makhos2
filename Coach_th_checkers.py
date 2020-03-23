@@ -233,13 +233,13 @@ class Coach():
         merge_tree = {0 : {}, 1 : {}, 2 : {}}
         
         
-        for k in range(3):
+        for k in range(5):
             pool = mp.Pool(processes=self.args.numSelfPlayPool, maxtasksperchild=1)
             res = []
            
             print(psutil.virtual_memory()[2])
 
-            for i in range(10):
+            for i in range(5):
                 net = self.nnet1
                 res.append(pool.apply_async(AsyncSelfPlay, args=(
                     merge_tree, net, self.game, self.args, i,ns)))
@@ -254,9 +254,9 @@ class Coach():
                 print("terminate program")
                 sys.exit()
                 
-            Ps_tree =  {0:"", 1:"", 2:"", 3:"", 4:"", 5:"", 6:"", 7:"", 8:"", 9:""}
-            Es_tree =  {0:"", 1:"", 2:"", 3:"", 4:"", 5:"", 6:"", 7:"", 8:"", 9:""}
-            Vs_tree =  {0:"", 1:"", 2:"", 3:"", 4:"", 5:"", 6:"", 7:"", 8:"", 9:""}
+            Ps_tree =  {0:{}, 1:{}, 2:{}, 3:{}, 4:{}, 5:{}, 6:{}, 7:{}, 8:{}, 9:{}}
+            Es_tree =  {0:{}, 1:{}, 2:{}, 3:{}, 4:{}, 5:{}, 6:{}, 7:{}, 8:{}, 9:{}}
+            Vs_tree =  {0:{}, 1:{}, 2:{}, 3:{}, 4:{}, 5:{}, 6:{}, 7:{}, 8:{}, 9:{}}
         
             
             logging.debug("finish learning merging tree")
