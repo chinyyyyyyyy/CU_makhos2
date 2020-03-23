@@ -237,13 +237,17 @@ class Coach():
             pool = mp.Pool(processes=self.args.numSelfPlayPool, maxtasksperchild=1)
             res = []
            
+            print(psutil.virtual_memory()[2])
+
             for i in range(10):
                 net = self.nnet1
                 res.append(pool.apply_async(AsyncSelfPlay, args=(
                     merge_tree, net, self.game, self.args, i,ns)))
+		print(psutil.virtual_memory()[2])
     
             pool.close()
             pool.join()
+            pool.terminate()
             
             if ns.leak:
                 pool.terminate()
