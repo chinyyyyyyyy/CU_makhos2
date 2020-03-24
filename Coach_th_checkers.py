@@ -161,11 +161,7 @@ def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
         nnet.train(trainExamples)
         
         
-        if args.shared_tree:
-            nnet.save_checkpoint(folder=args.checkpoint,
-                            filename='train_iter_shared_tree_' + str(iter_num) + '.pth.tar')
-        else:
-            nnet.save_checkpoint(folder=args.checkpoint,
+        nnet.save_checkpoint(folder=args.checkpoint,
                             filename='train_iter_' + str(iter_num) + '.pth.tar')
 
 
@@ -478,7 +474,7 @@ class Coach():
         # if self.args.load_model:
         #     start_iter += self.args.load_iter
 
-        for i in range(2, 30):  # hard code for 30 iters
+        for i in range(1, 30):  # hard code for 30 iters
             print('------ITER ' + str(i) + '------')
             self.win_count = 0
             self.loss_count = 0
