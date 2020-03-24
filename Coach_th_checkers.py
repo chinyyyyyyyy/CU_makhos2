@@ -225,6 +225,11 @@ class Coach():
         
         pool = mp.Pool(processes=self.args.numSelfPlayPool, maxtasksperchild=1)
         res = []
+        result = []
+
+        temp_draw_games = []
+        temp_win_games = []
+        temp_loss_games = []
        
 
         for i in range(self.args.numEps):
@@ -244,16 +249,30 @@ class Coach():
             
         for i in res:
             gameplay, r, report = i.get()
+            result.append(gameplay)
             reports.append(report)
             if (r == 1e-4):
                 self.draw_count += 1
-                self.draw_games.append(gameplay)
+                temp_draw_games.append(gameplay)
             elif r == 1:
                 self.win_count += 1
-                self.win_games.append(gameplay)
+                temp_win_games.append(gameplay)
             else:
                 self.loss_count += 1
-                self.loss_games.append(gameplay)
+                temp_loss_games.append(gameplay)
+        
+
+            
+        for i in temp_draw_games:
+            self.draw_games += i
+
+        for i in temp_win_games:
+            self.win_games += i
+
+        for i in temp_loss_games:
+            self.loss_games += i
+
+        
        
         
         
