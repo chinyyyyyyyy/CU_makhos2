@@ -2,6 +2,7 @@ import numpy as np
 import copy
 from .ThaiCheckersLogic import Board
 from random import choice
+from .preprocessing import move_to_index
 
 
 class RandomPlayer():
