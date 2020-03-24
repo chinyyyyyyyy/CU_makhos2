@@ -255,80 +255,7 @@ class Coach():
             else:
                 self.loss_count += 1
                 self.loss_games.append(gameplay)
-        
-        # merge_tree = {0 : {}, 1 : {}, 2 : {}}
-        
-        
-        # for k in range(4):
-        #     pool = mp.Pool(processes=self.args.numSelfPlayPool, maxtasksperchild=1)
-        #     res = []
-           
-        #     print(psutil.virtual_memory()[2])
-
-        #     for i in range(5):
-        #         net = self.nnet1
-        #         res.append(pool.apply_async(AsyncSelfPlay, args=(
-        #             merge_tree, net, self.game, self.args, i,ns)))
-        #         print(psutil.virtual_memory()[2])
-    
-        #     pool.close()
-        #     pool.join()
-        #     pool.terminate()
-            
-        #     if ns.leak:
-        #         pool.terminate()
-        #         print("terminate program")
-        #         sys.exit()
-                
-        #     Ps_tree =  {0:{}, 1:{}, 2:{}, 3:{}, 4:{}, 5:{}, 6:{}, 7:{}, 8:{}, 9:{}}
-        #     Es_tree =  {0:{}, 1:{}, 2:{}, 3:{}, 4:{}, 5:{}, 6:{}, 7:{}, 8:{}, 9:{}}
-        #     Vs_tree =  {0:{}, 1:{}, 2:{}, 3:{}, 4:{}, 5:{}, 6:{}, 7:{}, 8:{}, 9:{}}
-        
-            
-        #     logging.debug("finish learning merging tree")
-            
-    
-        #     for i in range(len(res)):
-        #         gameplay, r, report, Ps_tree[i], Es_tree[i], Vs_tree[i] = res[i].get()
-        #         reports.append(report)
-        #         if (r == 1e-4):
-        #             self.draw_count += 1
-        #             self.draw_games.append(gameplay)
-        #         elif r == 1:
-        #             self.win_count += 1
-        #             self.win_games.append(gameplay)
-        #         else:
-        #             self.loss_count += 1
-        #             self.loss_games.append(gameplay)
-    
-
-        #     # for i in temp_draw_games:
-        #     #     self.draw_games += i
-    
-        #     # for i in temp_win_games:
-        #     #     self.win_games += i
-    
-        #     # for i in temp_loss_games:
-        #     #     self.loss_games += i
-                
-                
-        #     s = time.time()
-                
-        #     merge_ps_tree = {**Ps_tree[0], **Ps_tree[1], **Ps_tree[2], **Ps_tree[3], **Ps_tree[4], **Ps_tree[5], **Ps_tree[6], **Ps_tree[7], **Ps_tree[8], **Ps_tree[9]}
-        #     merge_vs_tree = {**Vs_tree[0], **Vs_tree[1], **Vs_tree[2], **Vs_tree[3], **Vs_tree[4], **Vs_tree[5], **Vs_tree[6], **Vs_tree[7], **Vs_tree[8], **Vs_tree[9]}
-        #     merge_es_tree = {**Es_tree[0], **Es_tree[1], **Es_tree[2], **Es_tree[3], **Es_tree[4], **Es_tree[5], **Es_tree[6], **Es_tree[7], **Es_tree[8], **Es_tree[9]}
-            
-        #     merege_time = time.time() - s
-            
-        #     print(sys.getsizeof(merge_ps_tree)/1024)
-        #     print(sys.getsizeof(merge_vs_tree)/1024)
-        #     print(sys.getsizeof(merge_es_tree)/1024)
-        #     print("merge time =",merege_time)
-            
-        #     merge_tree[0] = merge_ps_tree
-        #     merge_tree[1] = merge_es_tree
-        #     merge_tree[2] = merge_vs_tree
-        
+       
         
         
         
@@ -477,8 +404,6 @@ class Coach():
             reports = self.parallel_self_play()
             report_df = pd.DataFrame(reports)
             report_df.to_csv('/root/test/CU_Makhos/time_reports/iter' + str(i))
-            sys.exit()
-            
             
 
             # iterationTrainExamples += temp

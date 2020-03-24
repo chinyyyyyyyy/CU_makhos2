@@ -11,18 +11,18 @@ Before using multiprocessing, please check 2 things before use this script.
 
 args = dotdict({
     'numIters': 500,
-    'numEps': 30,  # 25000
+    'numEps': 500,  # 25000
     'tempThreshold': 15,  # not used
     'updateThreshold': 0.55,  # not used
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 100,  # 1600 , 800
-    'arenaCompare': 50,  # 400, 0
+    'numMCTSSims': 90,  # 1600 , 800
+    'arenaCompare': 100,  # 400, 0
     'cpuct': 2,
 
     'multiGPU': False,
     'setGPU': '0',
-    'numSelfPlayPool': 12,
-    'numTestPlayPool': 12,
+    'numSelfPlayPool': 13,
+    'numTestPlayPool': 13,
 
     'checkpoint': '/root/test/CU_Makhos/models_minimax/',
     'load_model': True,
