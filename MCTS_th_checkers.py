@@ -23,8 +23,8 @@ class MCTS():
         self.Ns = {}        # stores #times board s was visited
         
         self.Ps = {}      # stores initial policy (returned by neural net)
-        #self.Es = {}    # stores game.getGameEnded ended for board s
-        #self.Vs = {}        # stores game.getValidMoves for board s
+        self.Es = {}    # stores game.getGameEnded ended for board s
+        self.Vs = {}        # stores game.getValidMoves for board s
 
     def getActionProb(self, boardHistory, temp=1):
         """
@@ -90,12 +90,13 @@ class MCTS():
         self.states_visited += 1
         s = self.game.stringRepresentation(boardHistory)
         canonicalBoard = boardHistory
-        
-        es = self.game.getGameEnded(canonicalBoard, 1)
+    
 
-        if  es != 0:
-            return -es
-        
+        if s not in self.Es:
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
+
+        if self.Es[s] != 0:
+            return -self.Es[s]
 
         if s not in self.Ps:
             # leaf node
@@ -118,7 +119,8 @@ class MCTS():
                 print("All valid moves were masked, do workaround.")
                 self.Ps[s] = self.Ps[s] + valids
                 self.Ps[s] /= np.sum(self.Ps[s])
-
+	
+            self.Vs[s] = valids
             self.Ns[s] = 0
             # print('return not in ps')
             return -v
@@ -129,7 +131,7 @@ class MCTS():
         else:
             tempps = self.Ps[s]
 
-        valids = self.game.getValidMoves(canonicalBoard, 1)
+        valids = self.Vs[s]
         cur_best = -float('inf')
         best_act = []
 

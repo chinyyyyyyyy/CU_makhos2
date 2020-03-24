@@ -187,10 +187,18 @@ class Board():
                 possible_moves.append(se_move)
         # Not king
         else:
-             mul_player = self.playerTurn
-             move = [(row - mul_player*1, col - 1),(row - mul_player*1, col + 1)]
-             return [x for x in move if self.is_in_board_range(x) and not self.is_occupied(x)]
-            
+            possible_moves = []
+            if self.playerTurn == 1:
+                west_move = (row - 1, col - 1)
+                east_move = (row - 1, col + 1)
+            else:
+                west_move = (row + 1, col - 1)
+                east_move = (row + 1, col + 1)
+            if self.is_in_board_range(west_move) and not self.is_occupied(west_move):
+                possible_moves.append(west_move)
+            if self.is_in_board_range(east_move) and not self.is_occupied(east_move):
+                possible_moves.append(east_move)
+        return possible_moves
 
     # Get all possible moves from all piece
     # Return in a array of (current_position, posible_move)
@@ -449,12 +457,21 @@ class Board():
 
     def flip(self):
     #=========== Chin Part ===================================================
+    # def flip_test(self):
+        flippedBoard = np.zeros((8, 8), dtype=np.int)
+        bp = self._boardPosition()
+        for i in bp[-3]:
+            flippedBoard[(7-i[0],7-i[1])] = 3
+        for i in bp[-1]:
+            flippedBoard[(7-i[0],7-i[1])] = 1
+        for i in bp[1]:
+            flippedBoard[(7-i[0],7-i[1])] = -1 
+        for i in bp[3]:
+            flippedBoard[(7-i[0],7-i[1])] = -3
+        return flippedBoard
+            
     
-        tempBoard = np.flipud(self.board)
-        tempBoard = np.fliplr(tempBoard)
-        return tempBoard * -np.ones((8,8),dtype=np.int8)
-
-       
+    
 
     def __str__(self):
         return np.array2string(self.board)
