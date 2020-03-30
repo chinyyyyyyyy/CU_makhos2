@@ -40,7 +40,7 @@ def AsyncSelfPlay(nnet, game, args, iter_num, ns):
         print('memory leak already leak')
         return
    
-    if (psutil.virtual_memory()[2]) > 90:
+    if (psutil.virtual_memory()[2]) > 97:
         print('memory leak')
         ns.leak = True
         return 
@@ -474,7 +474,7 @@ class Coach():
         # if self.args.load_model:
         #     start_iter += self.args.load_iter
 
-        for i in range(1, 30):  # hard code for 30 iters
+        for i in range(3, 30):  # hard code for 30 iters
             print('------ITER ' + str(i) + '------')
             self.win_count = 0
             self.loss_count = 0
@@ -500,7 +500,7 @@ class Coach():
 
             self.trainExamplesHistory.append(iterationTrainExamples)
             self.train_network(i)
-            self.parallel_self_test_play(i)
+            #self.parallel_self_test_play(i)
             self.trainExamplesHistory.clear()
 
 

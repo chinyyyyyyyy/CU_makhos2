@@ -4,3 +4,16 @@
 ------ITER 31------	MCTS sim:121	Iter samples :17
 ------ITER 31------	MCTS sim:121	Iter samples :17
 ------ITER 31------	MCTS sim:121	Iter samples :17
+------ITER 30------	MCTS sim:120	Iter samples :17
+------ITER 31------	MCTS sim:121	Iter samples :17
+------ITER 31------	MCTS sim:121	Iter samples :17
+------ITER 32------	MCTS sim:122	Iter samples :18
+------ITER 269------	MCTS sim:369	Iter samples :20
+------ITER 270------	MCTS sim:370	Iter samples :20
+------ITER 271------	MCTS sim:371	Iter samples :20
+------ITER 271------	MCTS sim:371	Iter samples :20
+------ITER 272------	MCTS sim:372	Iter samples :20
+------ITER 273------	MCTS sim:373	Iter samples :20
+------ITER 274------	MCTS sim:374	Iter samples :20
+------ITER 275------	MCTS sim:375	Iter samples :20
+------ITER 275------	MCTS sim:375	Iter samples :20

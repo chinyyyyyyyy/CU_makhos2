@@ -1,0 +1,3 @@
+iter 1	NN win: 8	Minimax win: 191	Draws: 1
+iter 30	NN win: 165	Minimax win: 35	Draws: 0
+iter 270	NN win: 186	Minimax win: 13	Draws: 1

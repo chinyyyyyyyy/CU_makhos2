@@ -11,22 +11,22 @@ Before using multiprocessing, please check 2 things before use this script.
 
 args = dotdict({
     'numIters': 500,
-    'numEps': 20,  # 25000
+    'numEps': 500,  # 25000
     'tempThreshold': 15,  # not used
     'updateThreshold': 0.55,  # not used
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 90,  # 1600 , 800
+    'numMCTSSims': 100,  # 1600 , 800
     'arenaCompare': 100,  # 400, 0
     'cpuct': 2,
 
     'multiGPU': False,
     'setGPU': '0',
-    'numSelfPlayPool': 40,
-    'numTestPlayPool': 13,
+    'numSelfPlayPool': 13,
+    'numTestPlayPool': 12,
 
     'checkpoint': '/root/test/CU_Makhos/models_minimax/',
-    'load_model': False,
-    'load_iter': 0,
+    'load_model': True,
+    'load_iter': 274,
     'load_folder_file': '/root/test/CU_Makhos/models_minimax/',
     'numItersForTrainExamplesHistory': 4 , # 4
 })
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     c = Coach(g, args)
     # c.nnet1.load_checkpoint(folder=args.checkpoint, filename='train_iter_'+str(args.load_iter)+'.pth.tar')
     # c.parallel_self_test_play(1)
-    c.learn_minimax()
+    #c.learn_minimax()
     # c.args.load_iter = 30
     c.learn()
 
