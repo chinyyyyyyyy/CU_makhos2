@@ -212,10 +212,15 @@ class NNetWrapper(NeuralNet):
                 val_v_loss += self.loss_v(target_vs, out_v).item()
 
             batch_idx += 1
+            
+            
+        val_pi_loss = 'Val Pi loss:' + str(val_pi_loss/number_of_batches) + 'Val V loss:' + str(val_v_loss/number_of_batches)
 
-        print('Val Pi loss:', val_pi_loss/number_of_batches,
-              'Val V loss:', val_v_loss/number_of_batches)
-        print()
+        print(val_pi_loss)
+        f = open(self.args.models_training_logging,'a')
+        f.write(val_pi_loss + "\n")
+        f.close()
+        
 
     def predict(self, board, turn, stale, valids):
         """

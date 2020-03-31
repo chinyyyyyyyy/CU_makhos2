@@ -342,7 +342,7 @@ class Coach():
 
         out = "iter "+str(iter_num)+"\tNN win: "+str(pwins)+"\tMinimax win: " + str(nwins)+"\tDraws: "+str(draws)
         print(out)
-        f = open('/root/test/CU_Makhos/results.txt','a')
+        f = open(self.args.test_result_logging,'a')
         f.write(out+"\n")
         f.close()
  
@@ -401,7 +401,7 @@ class Coach():
             
             learning_config = '------ITER ' + str(i) + '------' + '\tMCTS sim:' + str(self.args.numMCTSSims) + '\tIter samples :' + str(self.args.numItersForTrainExamplesHistory)
             print(learning_config)
-            f = open('/root/test/CU_Makhos/learning_config.txt','a')
+            f = open(self.args.train_params_loging,'a')
             f.write(learning_config + "\n")
             f.close()
             
@@ -417,7 +417,7 @@ class Coach():
 
             reports = self.parallel_self_play()
             report_df = pd.DataFrame(reports)
-            report_df.to_csv('/root/test/CU_Makhos/time_reports/iter' + str(i))
+            report_df.to_csv(self.args.play_record_loging + str(i))
             
 
             # iterationTrainExamples += temp

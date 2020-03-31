@@ -24,11 +24,17 @@ args = dotdict({
     'numSelfPlayPool': 2,
     'numTestPlayPool': 2,
 
-    'checkpoint': '/root/test/CU_Makhos/models_colab/',
+    'checkpoint': '/content/CU_makhos2/models_colab/',
     'load_model': True,
     'load_iter': 274,
-    'load_folder_file': '/root/test/CU_Makhos/models_colab/',
+    'load_folder_file': '/content/CU_makhos2/models_colab/',
     'numItersForTrainExamplesHistory': 4 , # 4
+    
+    
+    'train_params_loging' : '/content/CU_makhos2/learning_config.txt',
+    'play_record_loging' : '/content/CU_makhos2/time_reports/iter',
+    'test_result_logging' : '/content/CU_makhos2/results.txt',
+    'models_training_logging' : '/content/CU_makhos2/loss_log.txt',
 })
 
 if __name__ == "__main__":
