@@ -20,7 +20,7 @@ args = dotdict({
     'cpuct': 2,
 
     'multiGPU': False,
-    'setGPU': '0',
+    'setGPU': '1',
     'numSelfPlayPool': 13,
     'numTestPlayPool': 12,
 
