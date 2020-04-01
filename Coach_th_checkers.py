@@ -120,39 +120,41 @@ def AsyncMinimaxPlay(game, args,gameth):
 
 def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
     # ---load history file---
+    if not args.is_colab:
+        modelFile = os.path.join(args.checkpoint, "trainhistory.pth.tar")
+        examplesFile = modelFile+".examples"
+        if not os.path.isfile(examplesFile):
+            print('Train history not found')
+        else:
+            #make a backup
+            shutil.copy2(examplesFile, examplesFile+'.tmp')
+            # print("File with trainExamples found. Read it.")
+            old_history = pickle.load(open(examplesFile, "rb"))
+            for iter_samples in old_history:
+                trainhistory.append(iter_samples)
+            # f.closed
+        # ----------------------
+        # ---delete if over limit---
+        if len(trainhistory) > args.numItersForTrainExamplesHistory:
+            print("len(trainExamplesHistory) =", len(trainhistory),
+                  " => remove the oldest trainExamples")
+            #del trainhistory[len(trainhistory)-1]
+            trainhistory = trainhistory[:args.numItersForTrainExamplesHistory]
+            print('Length after remove:', len(trainhistory))
     
-    modelFile = os.path.join(args.checkpoint, "trainhistory.pth.tar")
-    examplesFile = modelFile+".examples"
-    if not os.path.isfile(examplesFile):
-        print('Train history not found')
+            # ---save history---
+        folder = args.checkpoint
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        filename = os.path.join(folder, 'trainhistory.pth.tar'+".examples")
+        pickle.dump(trainhistory, open(filename, "wb"))
+    #----- Save traning part tarin for colab -----------
     else:
-        #make a backup
-        shutil.copy2(examplesFile, examplesFile+'.tmp')
-        # print("File with trainExamples found. Read it.")
-        old_history = pickle.load(open(examplesFile, "rb"))
-        for iter_samples in old_history:
-            trainhistory.append(iter_samples)
-        # f.closed
-    # ----------------------
-    # ---delete if over limit---
-    if len(trainhistory) > args.numItersForTrainExamplesHistory:
-        print("len(trainExamplesHistory) =", len(trainhistory),
-              " => remove the oldest trainExamples")
-        #del trainhistory[len(trainhistory)-1]
-        trainhistory = trainhistory[:args.numItersForTrainExamplesHistory]
-        print('Length after remove:', len(trainhistory))
+        filename = args.checkpoint + 'trainhistory' + args.colab_player + '.pth.tar.examples'
+        pickle.dump(trainhistory, open(filename, "wb"))
+        sys.exit()
+    
 
-    # ---save history---
-    folder = args.checkpoint
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    filename = os.path.join(folder, 'trainhistory.pth.tar'+".examples")
-    pickle.dump(trainhistory, open(filename, "wb"))
-
-    # with open(filename, "wb") as f:
-    #     Pickler(f).dump(trainhistory)
-    #     # f.closed
-    # ------------------
     if train_net:
         trainExamples = build_unique_examples(trainhistory)
         shuffle(trainExamples)
@@ -365,7 +367,7 @@ class Coach():
         only if it wins >= updateThreshold fraction of games.
         """
 
-        if self.args.load_model:
+        if self.args.chec:
             try:
                 self.nnet1.load_checkpoint(
                     folder=self.args.checkpoint, filename='train_iter_'+str(self.args.load_iter)+'.pth.tar')

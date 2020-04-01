@@ -30,6 +30,8 @@ args = dotdict({
     'load_folder_file': '/root/test/CU_Makhos/models_minimax/',
     'numItersForTrainExamplesHistory': 4 , # 4
     
+    
+    'is_colab' : False,
     'train_params_loging' : '/root/test/CU_Makhos/learning_config.txt',
     'play_record_loging' : '/root/test/CU_Makhos/time_reports/iter',
     'test_result_logging' : '/root/test/CU_Makhos/results.txt',
