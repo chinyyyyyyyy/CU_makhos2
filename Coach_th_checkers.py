@@ -367,7 +367,7 @@ class Coach():
         only if it wins >= updateThreshold fraction of games.
         """
 
-        if self.args.chec:
+        if self.args.load_model:
             try:
                 self.nnet1.load_checkpoint(
                     folder=self.args.checkpoint, filename='train_iter_'+str(self.args.load_iter)+'.pth.tar')
