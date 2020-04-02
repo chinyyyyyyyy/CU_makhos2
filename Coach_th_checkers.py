@@ -33,7 +33,7 @@ logging.basicConfig(
 
 def AsyncSelfPlay(nnet, game, args, iter_num, ns): 
 
-    mcts = MCTS(game, nnet, args)    
+    mcts = MCTS(game, nnet, args) 
     ##================ Memory Freze protection ====================
     
     if ns.leak:
@@ -179,13 +179,15 @@ def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
         print('Total train samples (moves):', len(trainExamples))
 
         loss_result = nnet.train(trainExamples)
-        f = open(args.models_training_logging,'a')
-        f.write(loss_result + "\n")
-        f.close()
-        
         
         nnet.save_checkpoint(folder=args.checkpoint,
                             filename='train_iter_' + str(iter_num) + '.pth.tar')
+
+
+        f = open(args.models_training_logging,'a')
+        f.write(str(iter_num) + " " + loss_result + "\n")
+        f.close()
+        
 
 
 def AsyncAgainst(nnet, game, args, gameth):
@@ -376,10 +378,10 @@ class Coach():
 
         torch.cuda.set_device('cuda:' + self.args.setGPU)
 
-        # TrainNetwork(self.nnet1, self.game, self.args,
-        #              iter_num, self.trainExamplesHistory, train_net)
+        TrainNetwork(self.nnet1, self.game, self.args,
+                      iter_num, self.trainExamplesHistory, train_net)
         
-        TrainOldHistory(self.nnet1, self.args, iter_num)
+        #TrainOldHistory(self.nnet1, self.args, iter_num)
 
     def learn(self):
         """
@@ -408,6 +410,7 @@ class Coach():
         print('LR:')
         for param_group in self.nnet1.optimizer.param_groups:
             print(param_group['lr'])
+            
 
         
 
