@@ -47,5 +47,6 @@ if __name__ == "__main__":
     # c.parallel_self_test_play(1)
     #c.learn_minimax()
     # c.args.load_iter = 30
-    c.learn()
+    #c.learn()
+    c.train_network(iter_num = 275)
 

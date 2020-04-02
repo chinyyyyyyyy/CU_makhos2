@@ -117,6 +117,24 @@ def AsyncMinimaxPlay(game, args,gameth):
 
             return [(x[0], x[2], r*x[1], x[3], x[4], x[5]) for x in trainExamples], r 
 
+def TrainOldHistory(nnet, args, iter_num):
+    modelFile = os.path.join(args.checkpoint, "trainhistory.pth.tar")
+    examplesFile = modelFile+".examples"
+    old_history = pickle.load(open(examplesFile, "rb"))
+    trainExamples = build_unique_examples(old_history)
+    shuffle(trainExamples)
+    print('Total train samples (moves):', len(trainExamples))
+
+    loss_result = nnet.train(trainExamples)
+    f = open(args.models_training_logging,'a')
+    f.write(loss_result + "\n")
+    f.close()
+    
+    
+    nnet.save_checkpoint(folder=args.checkpoint,
+                        filename='train_iter_' + str(iter_num) + '.pth.tar')
+
+
 
 def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
     # ---load history file---
@@ -160,7 +178,10 @@ def TrainNetwork(nnet, game, args, iter_num, trainhistory, train_net=True):
         shuffle(trainExamples)
         print('Total train samples (moves):', len(trainExamples))
 
-        nnet.train(trainExamples)
+        loss_result = nnet.train(trainExamples)
+        f = open(args.models_training_logging,'a')
+        f.write(loss_result + "\n")
+        f.close()
         
         
         nnet.save_checkpoint(folder=args.checkpoint,
@@ -355,8 +376,10 @@ class Coach():
 
         torch.cuda.set_device('cuda:' + self.args.setGPU)
 
-        TrainNetwork(self.nnet1, self.game, self.args,
-                     iter_num, self.trainExamplesHistory, train_net)
+        # TrainNetwork(self.nnet1, self.game, self.args,
+        #              iter_num, self.trainExamplesHistory, train_net)
+        
+        TrainOldHistory(self.nnet1, self.args, iter_num)
 
     def learn(self):
         """
