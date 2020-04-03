@@ -28,3 +28,5 @@
 ------ITER 276------	MCTS sim:376	Iter samples :20
 ------ITER 276------	MCTS sim:376	Iter samples :20
 ------ITER 277------	MCTS sim:377	Iter samples :20
+------ITER 277------	MCTS sim:377	Iter samples :20
+------ITER 278------	MCTS sim:378	Iter samples :20
