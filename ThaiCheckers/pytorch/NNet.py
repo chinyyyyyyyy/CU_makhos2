@@ -227,10 +227,8 @@ class NNetWrapper(NeuralNet):
 
         board = self.convertToModelInput(board, turn, stale)
         # preparing input
-        board = torch.as_tensor(board, dtype=torch.float32).to(
-            self.device, non_blocking=True)
-        valids = torch.as_tensor(valids, dtype=torch.float32).to(
-            self.device, non_blocking=True)
+        board = torch.as_tensor(board, dtype=torch.float32).to(self.device, non_blocking=True)
+        valids = torch.as_tensor(valids, dtype=torch.float32).to(self.device, non_blocking=True)
         # self.nnet.eval()
         pi, v = self.nnet((board, valids))
 
