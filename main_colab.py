@@ -22,7 +22,7 @@ args = dotdict({
 
     'multiGPU': False,
     'setGPU': '0',
-    'numSelfPlayPool': 5,
+    'numSelfPlayPool': 4,
     'numTestPlayPool': 2,
 
     'checkpoint': '/gdrive/My Drive/tmp_traning_data/',
