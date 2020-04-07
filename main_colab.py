@@ -27,7 +27,7 @@ args = dotdict({
 
     'checkpoint': '/gdrive/My Drive/tmp_traning_data/',
     'load_model': True,
-    'load_iter': str(sys.argv[1]),
+    'load_iter': int(sys.argv[1]),
     'load_folder_file': '/content/CU_makhos2/models_colab/',
     'numItersForTrainExamplesHistory': 4 , # 4
     
