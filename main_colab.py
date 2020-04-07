@@ -12,7 +12,7 @@ Before using multiprocessing, please check 2 things before use this script.
 
 args = dotdict({
     'numIters': 500,
-    'numEps': 50,  # 25000
+    'numEps': 125,  # 25000
     'tempThreshold': 15,  # not used
     'updateThreshold': 0.55,  # not used
     'maxlenOfQueue': 200000,
@@ -22,18 +22,18 @@ args = dotdict({
 
     'multiGPU': False,
     'setGPU': '0',
-    'numSelfPlayPool': 4,
+    'numSelfPlayPool': 8,
     'numTestPlayPool': 2,
 
     'checkpoint': '/gdrive/My Drive/tmp_traning_data/',
     'load_model': True,
-    'load_iter': 284,
+    'load_iter': str(sys.argv[1]),
     'load_folder_file': '/content/CU_makhos2/models_colab/',
     'numItersForTrainExamplesHistory': 4 , # 4
     
     
     'is_colab' : True,
-    'colab_player' : str(sys.argv[1]),
+    'colab_player' : str(sys.argv[2]),
     'train_params_loging' : '/content/CU_makhos2/learning_config.txt',
     'play_record_loging' : '/content/CU_makhos2/time_reports/iter',
     'test_result_logging' : '/content/CU_makhos2/results.txt',
