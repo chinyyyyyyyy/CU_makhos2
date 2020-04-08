@@ -3,7 +3,7 @@ import time
 import argparse
 import glob, os
 import numpy as np
-from utils import *
+from utils import dotdict
 import copy
 
 from ThaiCheckers.preprocessing import index_to_move, move_to_index, index_to_move_human
@@ -44,16 +44,16 @@ if args.type == 'minimax':
 
 else:
     print('Neural network model')
-    nnet = nn(checkers, gpu_num=0)
-    nnet.load_checkpoint(folder='models', filename='train_iter_268.pth.tar')
+    nnet = nn(checkers, gpu_num=0,use_gpu = False)
+    nnet.load_checkpoint(folder='models', filename='train_iter_280.pth.tar')
     args1 = dotdict({'numMCTSSims':args.mcts, 'cpuct': 1.0})
     AI = MCTS(checkers, nnet, args1, eval=True, verbose=True)
     # def AI(x): return np.random.choice(
     #     32*32, p=mcts1.getActionProb(x, temp=0))
 
 if args.hint:
-    nnet_hint = nn(checkers, gpu_num=0)
-    nnet_hint.load_checkpoint(folder='models', filename='train_iter_268.pth.tar')
+    nnet_hint = nn(checkers, gpu_num=0,use_gpu = False)
+    nnet_hint.load_checkpoint(folder='models', filename='train_iter_280.pth.tar')
     args_hint = dotdict({'numMCTSSims':args.mcts, 'cpuct': 1.0})
     AI_hint = MCTS(checkers, nnet_hint, args_hint, eval=True, verbose=True)
 
@@ -89,27 +89,27 @@ def draw_pieces(canvas, checkers):
             x = col * 60
             y = row * 60 
             if args.player2:
-                if board[row, col] == checkers.gameState.PLAYER_1:
+                if board[row, col] == 1:
                     canvas.create_oval(x+10, y+10, x + 50, y + 50, fill='white', tags='piece')
-                elif board[row, col] == checkers.gameState.PLAYER_2:
+                elif board[row, col] == -1:
                     canvas.create_oval(x+10, y+10, x + 50, y + 50, fill='black', tags='piece')
 
-                elif board[row, col] == checkers.gameState.PLAYER_1_KING:
+                elif board[row, col] == 3:
                     canvas.create_oval(x+10, y+10, x + 50, y + 50, fill='white', tags='piece')
                     canvas.create_oval(x + 15, y + 15, x + 45, y + 45, fill='yellow', tags='piece')
-                elif board[row, col] == checkers.gameState.PLAYER_2_KING:
+                elif board[row, col] == -3:
                     canvas.create_oval(x+10, y+10, x + 50, y + 50, fill='black', tags='piece')
                     canvas.create_oval(x + 15, y + 15, x + 45, y + 45, fill='yellow', tags='piece')
             else:
-                if board[row, col] == checkers.gameState.PLAYER_1:
+                if board[row, col] == 1:
                     canvas.create_oval(x+10, y+10, x + 50, y + 50, fill='black', tags='piece')
-                elif board[row, col] == checkers.gameState.PLAYER_2:
+                elif board[row, col] == -1:
                     canvas.create_oval(x+10, y+10, x + 50, y + 50, fill='white', tags='piece')
 
-                elif board[row, col] == checkers.gameState.PLAYER_1_KING:
+                elif board[row, col] == 3:
                     canvas.create_oval(x+10, y+10, x + 50, y + 50, fill='black', tags='piece')
                     canvas.create_oval(x + 15, y + 15, x + 45, y + 45, fill='yellow', tags='piece')
-                elif board[row, col] == checkers.gameState.PLAYER_2_KING:
+                elif board[row, col] == -3:
                     canvas.create_oval(x+10, y+10, x + 50, y + 50, fill='white', tags='piece')
                     canvas.create_oval(x + 15, y + 15, x + 45, y + 45, fill='yellow', tags='piece')
             
@@ -140,7 +140,9 @@ def move_ai(board_input):
     print('Calculating...')
     #global state
     global board
+    
     valid_moves = checkers.getValidMoves(checkers.getCanonicalForm(board_input, state), 1)
+    
     if np.sum(valid_moves)==1 and args.type=='minimax':
         time.sleep(0.2)
         #print(index_to_move_human(np.argmax(valid_moves)))
@@ -152,11 +154,15 @@ def move_ai(board_input):
         action = AI.get_move(checkers.getCanonicalForm(board_input, state))
     else:
         #action, pi, _, _ = AI.act(checkers.gameState, 0)
+        start = time.time()
         action = np.random.choice(32*32, p=AI.getActionProb((checkers.getCanonicalForm(board_input, state)), temp=0))
+        print('Calculation Time',time.time() - start)
         #print(action)
         #move = index_to_move(action)
     #checkers.step(move)
+   
     board, _ = checkers.getNextState(board_input, BOT_SELECT, action)
+    
     board_history.append(copy.deepcopy(checkers))
     display(board)
 
@@ -302,6 +308,7 @@ while LOOP_ACTIVE:
             #print(end_point)
             possible_moves = []
             possible_move_idx = checkers.getValidMoves(board, PLAYER_SELECT_END)
+            print(possible_move_idx)
             for i,idx in enumerate(possible_move_idx):
                 if (idx==1):
                     possible_moves.append(index_to_move(i))

@@ -185,6 +185,7 @@ class Board():
                 if not self.is_in_board_range(se_move) or self.is_occupied(se_move):
                     break
                 possible_moves.append(se_move)
+            return possible_moves
         # Not king
         else:
              mul_player = self.playerTurn

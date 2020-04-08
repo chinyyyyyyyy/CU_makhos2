@@ -86,4 +86,9 @@ class ThaiCheckersGame(Game):
             out += boardHistory[i].tobytes()
         return out + bytes([self.gameState.turn]) + bytes([self.gameState.stale])
 
+def display(board):
+    print(" -----------------------")
+    Board(board).display()
+    print(" -----------------------")
+
 

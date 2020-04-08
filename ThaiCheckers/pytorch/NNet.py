@@ -36,30 +36,37 @@ args = dotdict({
 
 
 class NNetWrapper(NeuralNet):
-    def __init__(self, game, gpu_num):
-
-        self.gpu_num = gpu_num
-        #os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_num)
-        self.device = f'cuda:{self.gpu_num}'
-        torch.cuda.device(self.device)
-
-        self.game = game
-        self.nnet = ResNet(game, block_filters=args.num_channels,
-                           block_kernel=3, blocks=args.num_blocks).to(self.device, non_blocking=True).eval()
-
-        self.board_x, self.board_y = game.getBoardSize()
-        self.action_size = game.getActionSize()
-        self.optimizer = optim.Adam(
-            self.nnet.parameters(), lr=args.lr, weight_decay=0.0001)
-        # self.scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        #     self.optimizer, milestones=[100, 150, 200, 250, 300], gamma=0.5)
-        self.min_batch_size = 100
-        # if args.cuda:
-        #     self.nnet.cuda()
-        # self.nnet.cuda()
-        # self.nnet.eval()
-        self.nnet.share_memory()
-
+    def __init__(self, game, gpu_num, use_gpu = True):
+        
+        self.use_gpu = use_gpu
+        
+        
+        if use_gpu:
+            self.gpu_num = gpu_num
+            self.device = f'cuda:{self.gpu_num}'
+            torch.cuda.device(self.device)
+    
+            self.game = game
+            self.nnet = ResNet(game, block_filters=args.num_channels,
+                               block_kernel=3, blocks=args.num_blocks).to(self.device, non_blocking=True).eval()
+    
+            self.board_x, self.board_y = game.getBoardSize()
+            self.action_size = game.getActionSize()
+            self.optimizer = optim.Adam(
+                self.nnet.parameters(), lr=args.lr, weight_decay=0.0001)
+            self.min_batch_size = 100
+            self.nnet.share_memory()
+        else:
+            self.game = game
+            self.nnet = ResNet(game, block_filters=args.num_channels,
+                               block_kernel=3, blocks=args.num_blocks).eval()
+            self.board_x, self.board_y = game.getBoardSize()
+            self.optimizer = optim.Adam(
+                self.nnet.parameters(), lr=args.lr, weight_decay=0.0001)
+            self.min_batch_size = 100
+            self.nnet.share_memory()
+        
+        
     def train(self, past_examples):
         """
         examples: list of examples, each example is of form (board, pi, v)
@@ -227,12 +234,18 @@ class NNetWrapper(NeuralNet):
 
         board = self.convertToModelInput(board, turn, stale)
         # preparing input
-        board = torch.as_tensor(board, dtype=torch.float32).to(self.device, non_blocking=True)
-        valids = torch.as_tensor(valids, dtype=torch.float32).to(self.device, non_blocking=True)
+        if self.use_gpu:
+            board = torch.as_tensor(board, dtype=torch.float32).to(self.device, non_blocking=True)
+            valids = torch.as_tensor(valids, dtype=torch.float32).to(self.device, non_blocking=True)
+        else:
+            board = torch.as_tensor(board, dtype=torch.float32)
+            valids = torch.as_tensor(valids, dtype=torch.float32)
+            
+    
         # self.nnet.eval()
-        pi, v = self.nnet((board, valids))
 
-        #print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
+        pi, v = self.nnet((board, valids))
+        
         return torch.exp(pi).data.cpu().numpy()[0], v.data.cpu().numpy()[0]
 
     def loss_pi(self, targets, outputs):
@@ -262,23 +275,17 @@ class NNetWrapper(NeuralNet):
             raise ValueError("No model in path {}".format(filepath))
 
         # , map_location=torch.device('cuda')
-        checkpoint = torch.load(filepath, map_location=self.device)
+        if self.use_gpu:
+            checkpoint = torch.load(filepath, map_location=self.device)
+        else:
+            checkpoint = torch.load(filepath, map_location=torch.device('cpu'))
 
         self.nnet.load_state_dict(checkpoint['state_dict'])
-        # self.nnet.to(self.device).eval()
-        # self.nnet.share_memory()
-
-        # self.optimizer = optim.Adam(
-        #     self.nnet.parameters(), lr=args.lr, weight_decay=0.0001)
-        # self.scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        #     self.optimizer, milestones=[100, 500, 1000], gamma=0.1)
         if load_optimizer:
             self.optimizer.load_state_dict(checkpoint['optimizer'])
         # self.scheduler.load_state_dict(checkpoint['scheduler'])
 
         print('model ' + filename + ' loaded')
-        # print(self.optimizer.state_dict())
-        # print(self.scheduler.state_dict())
 
     def convertToModelInput(self, board, turn, stale):
 
