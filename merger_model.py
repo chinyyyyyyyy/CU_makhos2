@@ -1,15 +1,15 @@
 import pickle
 import os
 
-folder = '/gdrive/My Drive/tmp_traning_data/'
-numItersForTrainExamplesHistory = 20
+folder = '/root/test/CU_Makhos/models_minimax/drive/'
+numItersForTrainExamplesHistory = 5
 
 mainfile = folder+"trainhistory.pth.tar.examples"
 old_history = pickle.load(open(mainfile, "rb"))
 print(len(old_history))
 
 new_history_all = [[]]
-for i in range(1,11):
+for i in range(1,5):
     print("loading file",i)
     subfile = folder+ "trainhistory" + str(i) + ".pth.tar.examples"
     new_history = pickle.load(open(subfile, "rb"))
