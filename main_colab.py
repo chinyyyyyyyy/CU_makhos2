@@ -12,7 +12,7 @@ Before using multiprocessing, please check 2 things before use this script.
 
 args = dotdict({
     'numIters': 500,
-    'numEps': 125,  # 25000
+    'numEps': 250,  # 25000
     'tempThreshold': 15,  # not used
     'updateThreshold': 0.55,  # not used
     'maxlenOfQueue': 200000,
@@ -22,7 +22,7 @@ args = dotdict({
 
     'multiGPU': False,
     'setGPU': '0',
-    'numSelfPlayPool': 8,
+    'numSelfPlayPool': 9,
     'numTestPlayPool': 2,
 
     'checkpoint': '/gdrive/My Drive/tmp_traning_data/',
