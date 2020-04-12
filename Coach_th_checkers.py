@@ -348,8 +348,8 @@ class Coach():
 
         res = []
         result = []
-        net = self.nnet1
         for i in range(self.args.arenaCompare):
+            net = self.nnet1
             res.append(pool.apply_async(
                 AsyncAgainst, args=(net, self.game, self.args, i)))
         pool.close()
