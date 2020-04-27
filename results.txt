@@ -2,3 +2,6 @@ iter 1	NN win: 8	Minimax win: 191	Draws: 1
 iter 30	NN win: 165	Minimax win: 35	Draws: 0
 iter 270	NN win: 186	Minimax win: 13	Draws: 1
 iter 280	NN win: 191	Minimax win: 9	Draws: 0
+iter 290	NN win: 164	Minimax win: 14	Draws: 22
+iter 294	NN win: 179	Minimax win: 11	Draws: 10      
+iter 300	NN win: 183	Minimax win: 5	Draws: 12    

@@ -2,7 +2,7 @@ import pickle
 import os
 
 folder = '/root/test/CU_Makhos/models_minimax/drive/'
-numItersForTrainExamplesHistory = 20
+numItersForTrainExamplesHistory = 10
 
 mainfile = folder+"trainhistory.pth.tar.examples"
 old_history = pickle.load(open(mainfile, "rb"))
