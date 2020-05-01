@@ -9,6 +9,8 @@ import time
 import os
 
 
+import sys
+sys.path.append("..") 
 from utils import dotdict
 from ThaiCheckers.preprocessing import index_to_move, move_to_index,index_to_move_human
 from ThaiCheckers.ThaiCheckersGame import ThaiCheckersGame as Game, display
@@ -38,7 +40,7 @@ if args.type == 'minimax':
 else:
     print('Neural network model')
     nnet = nn(checkers, gpu_num=0,use_gpu = False)
-    nnet.load_checkpoint(folder='models', filename='train_iter_301.pth.tar')
+    nnet.load_checkpoint(folder='/CU_makhos2/models', filename='train_iter_301.pth.tar')
     args1 = dotdict({'numMCTSSims':args.mcts, 'cpuct': 1.0})
     AI = MCTS(checkers, nnet, args1, eval=True, verbose=True)
 
@@ -97,11 +99,6 @@ def newgame():
     #     [0, 1, 0, 1, 0, 1, 0, 1],
     #     [1, 0, 1, 0, 1, 0, 1, 0]
     # ]).reshape(64).tolist()
-
-    # board = np.zeros((8,8))
-    # board[3,2] = -1
-    # board[5,2] = 1
-    # board = board.reshape(64).tolist()
     response_object['board'] = board
     return jsonify(response_object)
 
@@ -140,11 +137,7 @@ def makemove():
     board, _ = checkers.getNextState(board, 1
     , move_to_index((starting_point, end_point)))
 
-    result = checkers.getGameEnded(board,-1)
-    print(result)
-
     response_object['board'] =  board.reshape(64).tolist()
-    response_object['result'] = result
     return jsonify(response_object)
 
 @app.route('/aimove', methods=['POST'])
@@ -155,25 +148,8 @@ def aimove():
     board = np.array(curr_board).reshape((8,8))
     moved_board =  move_ai(board)
 
-    result = checkers.getGameEnded(moved_board,1)
-    print(result)
-
     response_object['board'] =  moved_board.reshape(64).tolist()
-    response_object['result'] = result
     return jsonify(response_object)
-
-
-# @app.route('/getgameend',methods = ['POST'])
-# def getgamestate():
-#     response_object = {'status': 'success'}
-
-#     payload = request.get_json()
-#     board = np.array(payload['board']).reshape((8,8))
-#     player = payload['player']
-
-#     result = checkers.getGameEnded(board,player)
-#     response_object = {'result': result}
-#     return jsonify(response_object)
 
 
 if __name__ == '__main__':
