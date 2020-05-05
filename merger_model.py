@@ -2,7 +2,7 @@ import pickle
 import os
 
 folder = '/root/test/CU_Makhos/models_minimax/drive/'
-numItersForTrainExamplesHistory = 10
+numItersForTrainExamplesHistory = 11
 
 mainfile = folder+"trainhistory.pth.tar.examples"
 old_history = pickle.load(open(mainfile, "rb"))
@@ -21,7 +21,7 @@ for iter_samples in old_history:
     
 
 # ---delete if over limit---
-if len(old_history) > numItersForTrainExamplesHistory:
+if len(old_history) >= numItersForTrainExamplesHistory:
     print("len(trainExamplesHistory) =", len(old_history),
           " => remove the oldest trainExamples")
     new_history_all = new_history_all[:numItersForTrainExamplesHistory]

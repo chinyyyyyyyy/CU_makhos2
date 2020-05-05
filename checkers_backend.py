@@ -38,7 +38,7 @@ if args.type == 'minimax':
 else:
     print('Neural network model')
     nnet = nn(checkers, gpu_num=0,use_gpu = False)
-    nnet.load_checkpoint(folder='models', filename='train_iter_301.pth.tar')
+    nnet.load_checkpoint(folder='models_minimax', filename='train_iter_303.pth.tar')
     args1 = dotdict({'numMCTSSims':args.mcts, 'cpuct': 1.0})
     AI = MCTS(checkers, nnet, args1, eval=True, verbose=True)
 

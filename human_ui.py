@@ -71,7 +71,7 @@ else:
 
 if args.hint:
     nnet_hint = nn(checkers, gpu_num=0,use_gpu = False)
-    nnet_hint.load_checkpoint(folder='models', filename='train_iter_301.pth.tar')
+    nnet_hint.load_checkpoint(folder='models_minimax', filename='train_iter_303.pth.tar')
     args_hint = dotdict({'numMCTSSims':args.mcts, 'cpuct': 1.0})
     AI_hint = MCTS(checkers, nnet_hint, args_hint, eval=True, verbose=True)
 
