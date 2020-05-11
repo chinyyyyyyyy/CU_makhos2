@@ -37,24 +37,6 @@ else:
 checkers = Game()
 board = checkers.getInitBoard()
 
-#===============================================================
-
-board = np.array([
-    [0, -1, 0, -1, 0, -1, 0, -1],
-    [-1, 0, -1, 0, -1, 0, -1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, -1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, -1, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 1, 0, 1, 0, 1, 0]
-])
-
-
-#===============================================================
-
-
-
 
 if args.type == 'minimax':
     AI = minimaxAI(checkers, depth=args.depth,verbose=True)
@@ -63,7 +45,7 @@ if args.type == 'minimax':
 else:
     print('Neural network model')
     nnet = nn(checkers, gpu_num=0,use_gpu = False)
-    nnet.load_checkpoint(folder='models', filename='train_iter_301.pth.tar')
+    nnet.load_checkpoint(folder='models', filename='train_iter_305.pth.tar')
     args1 = dotdict({'numMCTSSims':args.mcts, 'cpuct': 1.0})
     AI = MCTS(checkers, nnet, args1, eval=True, verbose=True)
     # def AI(x): return np.random.choice(
@@ -71,7 +53,7 @@ else:
 
 if args.hint:
     nnet_hint = nn(checkers, gpu_num=0,use_gpu = False)
-    nnet_hint.load_checkpoint(folder='models_minimax', filename='train_iter_303.pth.tar')
+    nnet_hint.load_checkpoint(folder='models_minimax', filename='train_iter_305.pth.tar')
     args_hint = dotdict({'numMCTSSims':args.mcts, 'cpuct': 1.0})
     AI_hint = MCTS(checkers, nnet_hint, args_hint, eval=True, verbose=True)
 
@@ -287,9 +269,9 @@ while LOOP_ACTIVE:
         else:
             winner = checkers.getGameEnded(board,state)
         if winner==-1:
-            turn_label['text'] = 'YOU LOST!'
+            turn_label['text'] = 'YOU LOST! FUCKING NUB'
         elif winner==1:
-            turn_label['text'] = 'YOU WON!'
+            turn_label['text'] = 'YOU WON! ARIENAiiiii'
         else:
             turn_label['text'] = 'DRAW!'
         #print('Winner is:',winner)
