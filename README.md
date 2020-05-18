@@ -14,9 +14,20 @@ To play against model you need Python and CUDA installed.
 python human_ui.py
 ```
 
+### Web application
+
+I develope web application using python(flask) as back - end 
+
+```
+python checkers_backend.py
+```
+feeding boards and the response to Vue.js see more in /client folder
+
+
+
 ### Pretrained model
 
-Latest iteration of my run is 268, where the first 35 iterations learned from minimax algorithm gameplay and the rest are self-play of the latest iteration at the time.
+Latest iteration of my run is 305, where the first 30 iterations learned from minimax algorithm gameplay and the rest are self-play of the latest iteration at the time.
 
 ![alt tag](accuracy.png)
 
