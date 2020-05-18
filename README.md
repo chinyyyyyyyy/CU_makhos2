@@ -18,7 +18,7 @@ python human_ui.py
 
 Latest iteration of my run is 268, where the first 35 iterations learned from minimax algorithm gameplay and the rest are self-play of the latest iteration at the time.
 
-##![alt tag](results/winrate_vs_minimax_7.png)
+![alt tag](results.png)
 
 The performance of the model was estimated as a total result in 200-games match against depth-7 minimax algorithm using 200 simulations Monte Carlo tree search each move.
 
